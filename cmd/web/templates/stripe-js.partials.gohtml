@@ -1,0 +1,132 @@
+{{define "stripe-js"***REMOVED******REMOVED***
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+    let card;
+    let stripe;
+    const cardMessages = document.getElementById("card-messages"***REMOVED***
+    const payButton = document.getElementById("pay-button"***REMOVED***
+    const processing = document.getElementById("processing-payment"***REMOVED***
+
+    stripe = Stripe("{{.StripePublishableKey***REMOVED******REMOVED***"***REMOVED***;
+   
+    function hidePayButton(***REMOVED*** {
+        payButton.classList.add("d-none"***REMOVED***
+        processing.classList.remove("d-none"***REMOVED***
+    ***REMOVED***
+
+    function showPayButton(***REMOVED*** {
+        payButton.classList.remove("d-none"***REMOVED***
+        processing.classList.add("d-none"***REMOVED***
+    ***REMOVED***
+
+    function showCardError(msg***REMOVED*** {
+        cardMessages.classList.add("alert-danger"***REMOVED***;
+        cardMessages.classList.remove("alert-success"***REMOVED***;
+        cardMessages.classList.remove("d-none"***REMOVED***;
+        cardMessages.innerText = msg;
+    ***REMOVED***
+
+    function showCardSuccess(***REMOVED*** {
+        cardMessages.classList.remove("alert-danger"***REMOVED***;
+        cardMessages.classList.add("alert-success"***REMOVED***;
+        cardMessages.classList.remove("d-none"***REMOVED***;
+        cardMessages.innerText = "Transaction successful";
+    ***REMOVED***  
+
+    function val(***REMOVED***{
+      let form = document.getElementById("charge_form"***REMOVED***
+      if(form.checkValidity(***REMOVED*** == false***REMOVED*** {
+        this.event.preventDefault(***REMOVED***;
+        this.event.stopPropagation(***REMOVED***;
+        form.classList.add("was-validated"***REMOVED***;
+        return;
+      ***REMOVED***
+      form.classList.add("was-validated"***REMOVED***
+      hidePayButton(***REMOVED***
+
+      let amountToCharge = document.getElementById("amount"***REMOVED***.value
+      
+      let payload = {
+        amount: amountToCharge,
+        currency: 'cad',
+      ***REMOVED***
+
+      const requestOptions = {
+        method: 'post',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        ***REMOVED***,
+        body: JSON.stringify(payload***REMOVED***
+      ***REMOVED***
+     
+      fetch("{{.API***REMOVED******REMOVED***/api/payment-intent", requestOptions***REMOVED***
+        .then(response => response.text(***REMOVED******REMOVED***
+        .then(response => {
+            let data;
+            try {
+                data = JSON.parse(response***REMOVED***
+                stripe.confirmCardPayment(data.client_secret, {
+                    payment_method:{
+                        card: card,
+                        billing_details: {
+                            name: document.getElementById("cardholder-name"***REMOVED***.value
+                        ***REMOVED***                    
+                    ***REMOVED***
+
+                ***REMOVED******REMOVED***.then(function(result***REMOVED***{
+                    if(result.error***REMOVED*** {
+                        showCardError(result.error.message***REMOVED***;
+                        showPayButton(***REMOVED***;
+                    ***REMOVED***else if (result.paymentIntent***REMOVED***{
+                        if(result.paymentIntent.status === "succeeded"***REMOVED*** {
+                            document.getElementById("payment_method"***REMOVED***.value = result.paymentIntent.payment_method;
+                            document.getElementById("payment_intent"***REMOVED***.value = result.paymentIntent.id;
+                            document.getElementById("payment_amount"***REMOVED***.value = result.paymentIntent.amount;
+                            document.getElementById("payment_currency"***REMOVED***.value = result.paymentIntent.currency;
+                            processing.classList.add("d-none"***REMOVED***;
+                            showCardSuccess(***REMOVED***;
+                            console.log(result***REMOVED***
+                            form.submit(***REMOVED***;
+                        ***REMOVED***
+                    ***REMOVED***
+                ***REMOVED******REMOVED***
+            ***REMOVED*** catch (err***REMOVED*** {
+                console.log(err***REMOVED***;
+                showCardError("Invalid response from payment gateway!"***REMOVED***;
+                showPayButton(***REMOVED***;
+            ***REMOVED***
+        ***REMOVED******REMOVED***
+    ***REMOVED***
+
+    (function(***REMOVED***{
+        // create strpie & elements
+        const elements =stripe.elements(***REMOVED***;
+        const style = {
+            base: {
+                fontSize: '16px',
+                lineHeight: '24px'
+            ***REMOVED***
+        ***REMOVED***
+
+        // create card entry
+        card = elements.create('card', {
+            style: style,
+            hidePostalCode: true
+        ***REMOVED******REMOVED***
+        card.mount("#card-element"***REMOVED***
+
+        // check for input errors
+        card.addEventListener('change', function(event***REMOVED*** {
+            var displayError = document.getElementById("card-errors"***REMOVED***;
+            if(event.error***REMOVED*** {
+                displayError.classList.remove('d-none'***REMOVED***;
+                displayError.textContent = event.error.message;
+            ***REMOVED*** else {
+                displayError.classList.add('d-none'***REMOVED***;
+                displayError.textContent = '';
+            ***REMOVED***
+        ***REMOVED******REMOVED***
+    ***REMOVED******REMOVED***(***REMOVED***;
+    </script>
+{{end***REMOVED******REMOVED***

@@ -23,5 +23,6 @@ func (app *application***REMOVED*** routes(***REMOVED*** http.Handler {
 
 	mux.Get("/api/", app.GetStartPage***REMOVED***
 	mux.Post("/api/payment-intent", app.GetPaymentIntent***REMOVED***
+	mux.Get("/api/widget/{id***REMOVED***", app.GetWidgetByID***REMOVED***
 	return mux
 ***REMOVED***

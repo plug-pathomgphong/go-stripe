@@ -1,0 +1,16 @@
+create_table("statuses"***REMOVED*** {
+    t.Column("id", "integer", {primary: true***REMOVED******REMOVED***
+    t.Column("name", "string", {***REMOVED******REMOVED***
+***REMOVED***
+
+sql("alter table statuses alter column created_at set default now(***REMOVED***;"***REMOVED***
+sql("alter table statuses alter column updated_at set default now(***REMOVED***;"***REMOVED***
+
+sql("insert into statuses (name***REMOVED*** values ('Cleared'***REMOVED***;"***REMOVED***
+sql("insert into statuses (name***REMOVED*** values ('Refunded'***REMOVED***;"***REMOVED***
+sql("insert into statuses (name***REMOVED*** values ('Cancelled'***REMOVED***;"***REMOVED***
+
+add_foreign_key("orders", "status_id", {"statuses": ["id"]***REMOVED***, {
+    "on_delete": "cascade",
+    "on_update": "cascade",
+***REMOVED******REMOVED***

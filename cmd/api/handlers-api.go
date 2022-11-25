@@ -5,6 +5,7 @@
 ***REMOVED***
 	"strconv"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/plug-pathomgphong/dotnet-webapi/internal/cards"
 ***REMOVED***
 
@@ -86,4 +87,24 @@ func (app *application***REMOVED*** GetPaymentIntent(w http.ResponseWriter, r *h
 		w.Write(out***REMOVED***
 ***REMOVED***
 
+***REMOVED***
+
+func (app *application***REMOVED*** GetWidgetByID(w http.ResponseWriter, r *http.Request***REMOVED*** {
+	id := chi.URLParam(r, "id"***REMOVED***
+	widgetID, _ := strconv.Atoi(id***REMOVED***
+
+	widget, err := app.DB.GetWidget(widgetID***REMOVED***
+***REMOVED***
+		app.errorLog.Panicln(err***REMOVED***
+		return
+***REMOVED***
+
+	out, err := json.MarshalIndent(widget, "", "   "***REMOVED***
+***REMOVED***
+		app.errorLog.Panicln(err***REMOVED***
+		return
+***REMOVED***
+
+	w.Header(***REMOVED***.Set("Content-Type", "application/json"***REMOVED***
+	w.Write(out***REMOVED***
 ***REMOVED***

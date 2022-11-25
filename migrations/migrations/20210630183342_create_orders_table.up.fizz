@@ -1,0 +1,21 @@
+create_table("orders"***REMOVED*** {
+    t.Column("id", "integer", {primary: true***REMOVED******REMOVED***
+    t.Column("widget_id", "integer", {"unsigned":true***REMOVED******REMOVED***
+    t.Column("transaction_id", "integer", {"unsigned":true***REMOVED******REMOVED***
+    t.Column("status_id", "integer", {"unsigned":true***REMOVED******REMOVED***
+    t.Column("quantity", "integer", {***REMOVED******REMOVED***
+    t.Column("amount", "integer", {***REMOVED******REMOVED***
+***REMOVED***
+
+sql("alter table orders alter column created_at set default now(***REMOVED***;"***REMOVED***
+sql("alter table orders alter column updated_at set default now(***REMOVED***;"***REMOVED***
+
+add_foreign_key("orders", "widget_id", {"widgets": ["id"]***REMOVED***, {
+    "on_delete": "cascade",
+    "on_update": "cascade",
+***REMOVED******REMOVED***
+
+add_foreign_key("orders", "transaction_id", {"transactions": ["id"]***REMOVED***, {
+    "on_delete": "cascade",
+    "on_update": "cascade",
+***REMOVED******REMOVED***

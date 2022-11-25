@@ -1,0 +1,9 @@
+create_table("customers"***REMOVED*** {
+  t.Column("id", "integer", {primary: true***REMOVED******REMOVED***
+  t.Column("first_name", "string", {"size": 255***REMOVED******REMOVED***
+  t.Column("last_name", "string", {"size": 255***REMOVED******REMOVED***
+  t.Column("email", "string", {***REMOVED******REMOVED***
+***REMOVED***
+
+sql("alter table customers alter column created_at set default now(***REMOVED***;"***REMOVED***
+sql("alter table customers alter column updated_at set default now(***REMOVED***;"***REMOVED***

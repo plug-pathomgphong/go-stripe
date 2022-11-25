@@ -9,26 +9,37 @@
 ***REMOVED***
 
 type templateData struct {
-	StringMap       map[string]string
-	IntMap          map[string]int
-	FloatMap        map[string]float32
-	Data            map[string]interface{***REMOVED***
-	CSRFToke        string
-	Flash           string
-	Warning         string
-	Error           string
-	IsAuthenticated int
-	API             string
-	CSSVersion      string
+	StringMap            map[string]string
+	IntMap               map[string]int
+	FloatMap             map[string]float32
+	Data                 map[string]interface{***REMOVED***
+	CSRFToke             string
+	Flash                string
+	Warning              string
+	Error                string
+	IsAuthenticated      int
+	API                  string
+	CSSVersion           string
+	StripeSecretKey      string
+	StripePublishableKey string
 ***REMOVED***
 
-var functions = template.FuncMap{***REMOVED***
+var functions = template.FuncMap{
+	"formatCurrency": formatCurrency,
+***REMOVED***
+
+func formatCurrency(n int***REMOVED*** string {
+	f := float32(n / 100***REMOVED***
+	return fmt.Sprintf("$%.2f", f***REMOVED***
+***REMOVED***
 
 //go:embed templates
 var templateFS embed.FS
 
 func (app *application***REMOVED*** addDefaultData(td *templateData, r *http.Request***REMOVED*** *templateData {
 	td.API = app.config.api
+	td.StripePublishableKey = app.config.stripe.key
+	td.StripeSecretKey = app.config.stripe.secret
 	return td
 ***REMOVED***
 
