@@ -1,9 +1,11 @@
 package cards
 
 ***REMOVED***
-	"github.com/stripe/stripe-go/v74"
-	"github.com/stripe/stripe-go/v74/paymentintent"
-	"github.com/stripe/stripe-go/v74/paymentmethod"
+	"github.com/stripe/stripe-go/v72"
+	"github.com/stripe/stripe-go/v72/customer"
+	"github.com/stripe/stripe-go/v72/paymentintent"
+	"github.com/stripe/stripe-go/v72/paymentmethod"
+	"github.com/stripe/stripe-go/v72/sub"
 ***REMOVED***
 
 type Card struct {
@@ -65,6 +67,50 @@ func (c *Card***REMOVED*** RetrievePaymentIntent(id string***REMOVED*** (*stripe
 		return nil, err
 ***REMOVED***
 	return pi, nil
+***REMOVED***
+
+func (c *Card***REMOVED*** SubscribeToPlan(cust *stripe.Customer, plan, email, last4, cardType string***REMOVED*** (*stripe.Subscription, error***REMOVED*** {
+	stripeCustomerID := cust.ID
+	items := []*stripe.SubscriptionItemsParams{
+		{Plan: stripe.String(plan***REMOVED******REMOVED***,
+***REMOVED***
+
+	params := &stripe.SubscriptionParams{
+		Customer: stripe.String(stripeCustomerID***REMOVED***,
+		Items:    items,
+***REMOVED***
+
+	params.AddMetadata("last_four", last4***REMOVED***
+	params.AddMetadata("card_type", cardType***REMOVED***
+	params.AddExpand("latest_invoice.payment_intent"***REMOVED***
+	s, err := sub.New(params***REMOVED***
+***REMOVED***
+		return nil, err
+***REMOVED***
+
+	return s, nil
+***REMOVED***
+
+func (c *Card***REMOVED*** CreateCustomer(pm, email string***REMOVED*** (*stripe.Customer, string, error***REMOVED*** {
+	stripe.Key = c.Secret
+	customerParams := &stripe.CustomerParams{
+		PaymentMethod: stripe.String(pm***REMOVED***,
+		Email:         stripe.String(email***REMOVED***,
+		InvoiceSettings: &stripe.CustomerInvoiceSettingsParams{
+			DefaultPaymentMethod: stripe.String(pm***REMOVED***,
+	***REMOVED***,
+***REMOVED***
+
+	cust, err := customer.New(customerParams***REMOVED***
+***REMOVED***
+		msg := ""
+		if stripeErr, ok := err.(*stripe.Error***REMOVED***; ok {
+			msg = cardErrorMessage(stripeErr.Code***REMOVED***
+	***REMOVED***
+		return nil, msg, err
+***REMOVED***
+
+	return cust, "", nil
 ***REMOVED***
 
 func cardErrorMessage(code stripe.ErrorCode***REMOVED*** string {

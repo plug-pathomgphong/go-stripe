@@ -30,7 +30,7 @@ CREATE TABLE `customers` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp(***REMOVED***,
   `updated_at` datetime NOT NULL DEFAULT current_timestamp(***REMOVED***,
   PRIMARY KEY (`id`***REMOVED***
-***REMOVED*** ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+***REMOVED*** ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -59,7 +59,7 @@ CREATE TABLE `orders` (
   CONSTRAINT `orders_statuses_id_fk` FOREIGN KEY (`status_id`***REMOVED*** REFERENCES `statuses` (`id`***REMOVED*** ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `orders_transactions_id_fk` FOREIGN KEY (`transaction_id`***REMOVED*** REFERENCES `transactions` (`id`***REMOVED*** ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `orders_widgets_id_fk` FOREIGN KEY (`widget_id`***REMOVED*** REFERENCES `widgets` (`id`***REMOVED*** ON DELETE CASCADE ON UPDATE CASCADE
-***REMOVED*** ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+***REMOVED*** ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -131,7 +131,7 @@ CREATE TABLE `transactions` (
   PRIMARY KEY (`id`***REMOVED***,
   KEY `transactions_transaction_statuses_id_fk` (`transaction_status_id`***REMOVED***,
   CONSTRAINT `transactions_transaction_statuses_id_fk` FOREIGN KEY (`transaction_status_id`***REMOVED*** REFERENCES `transaction_statuses` (`id`***REMOVED*** ON DELETE CASCADE ON UPDATE CASCADE
-***REMOVED*** ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+***REMOVED*** ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -169,8 +169,10 @@ CREATE TABLE `widgets` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp(***REMOVED***,
   `updated_at` datetime NOT NULL DEFAULT current_timestamp(***REMOVED***,
   `image` varchar(255***REMOVED*** NOT NULL DEFAULT '',
+  `is_recurring` tinyint(1***REMOVED*** NOT NULL DEFAULT 0,
+  `plan_id` varchar(255***REMOVED*** NOT NULL DEFAULT '',
   PRIMARY KEY (`id`***REMOVED***
-***REMOVED*** ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+***REMOVED*** ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -182,4 +184,4 @@ CREATE TABLE `widgets` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-11-25 18:01:50
+-- Dump completed on 2022-11-26 12:20:17

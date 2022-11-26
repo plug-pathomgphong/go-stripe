@@ -20,6 +20,9 @@ func (app *application***REMOVED*** routes(***REMOVED*** http.Handler {
 	mux.Post("/payment-succeeded", app.PaymentSucceeded***REMOVED***
 	mux.Get("/receipt", app.Receipt***REMOVED***
 
+	mux.Get("/plan/bronze", app.BronzePlan***REMOVED***
+	mux.Get("/receipt/bronze", app.BronzePlanReceipt***REMOVED***
+
 	fileServer := http.FileServer(http.Dir("./static"***REMOVED******REMOVED***
 	mux.Handle("/static/*", http.StripPrefix("/static", fileServer***REMOVED******REMOVED***
 

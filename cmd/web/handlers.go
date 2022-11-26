@@ -91,7 +91,7 @@ func (app *application***REMOVED*** GetTransactionData(r *http.Request***REMOVED
 		LastFour:        lastFour,
 		ExpiryMonth:     int(expiryMonth***REMOVED***,
 		ExpiryYear:      int(expireYear***REMOVED***,
-		BankReturnCode:  pi.LatestCharge.ID,
+		BankReturnCode:  pi.Charges.Data[0].ID,
 ***REMOVED***
 
 	return txnData, nil
@@ -286,6 +286,29 @@ func (app *application***REMOVED*** ChangeOnce(w http.ResponseWriter, r *http.Re
 	data := make(map[string]interface{***REMOVED******REMOVED***
 	data["widget"] = widget
 	if err := app.renderTemplate(w, r, "buy-once", &templateData{Data: data***REMOVED***, "stripe-js"***REMOVED***; err != nil {
+		app.errorLog.Println(err***REMOVED***
+***REMOVED***
+***REMOVED***
+
+func (app *application***REMOVED*** BronzePlan(w http.ResponseWriter, r *http.Request***REMOVED*** {
+	widget, err := app.DB.GetWidget(2***REMOVED***
+***REMOVED***
+		app.errorLog.Panicln(err***REMOVED***
+		return
+***REMOVED***
+	data := make(map[string]interface{***REMOVED******REMOVED***
+	data["widget"] = widget
+
+	if err := app.renderTemplate(w, r, "bronze-plan", &templateData{
+		Data: data,
+***REMOVED******REMOVED***; err != nil {
+		app.errorLog.Println(err***REMOVED***
+***REMOVED***
+***REMOVED***
+
+func (app *application***REMOVED*** BronzePlanReceipt(w http.ResponseWriter, r *http.Request***REMOVED*** {
+
+	if err := app.renderTemplate(w, r, "receipt-plan", &templateData{***REMOVED******REMOVED***; err != nil {
 		app.errorLog.Println(err***REMOVED***
 ***REMOVED***
 ***REMOVED***
