@@ -91,7 +91,7 @@ func (app *application) GetTransactionData(r *http.Request) (TransactionData, er
 		LastFour:        lastFour,
 		ExpiryMonth:     int(expiryMonth),
 		ExpiryYear:      int(expireYear),
-		BankReturnCode:  pi.LatestCharge.ID,
+		BankReturnCode:  pi.Charges.Data[0].ID,
 	}
 
 	return txnData, nil
@@ -286,6 +286,29 @@ func (app *application) ChangeOnce(w http.ResponseWriter, r *http.Request) {
 	data := make(map[string]interface{})
 	data["widget"] = widget
 	if err := app.renderTemplate(w, r, "buy-once", &templateData{Data: data}, "stripe-js"); err != nil {
+		app.errorLog.Println(err)
+	}
+}
+
+func (app *application) BronzePlan(w http.ResponseWriter, r *http.Request) {
+	widget, err := app.DB.GetWidget(2)
+	if err != nil {
+		app.errorLog.Panicln(err)
+		return
+	}
+	data := make(map[string]interface{})
+	data["widget"] = widget
+
+	if err := app.renderTemplate(w, r, "bronze-plan", &templateData{
+		Data: data,
+	}); err != nil {
+		app.errorLog.Println(err)
+	}
+}
+
+func (app *application) BronzePlanReceipt(w http.ResponseWriter, r *http.Request) {
+
+	if err := app.renderTemplate(w, r, "receipt-plan", &templateData{}); err != nil {
 		app.errorLog.Println(err)
 	}
 }
