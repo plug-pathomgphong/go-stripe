@@ -72,6 +72,8 @@ type Transaction struct {
 	LastFour            string    `json:"last_four"`
 	ExpiryMonth         int       `json:"expiry_month"`
 	ExpiryYear          int       `json:"expiry_year"`
+	PaymentIndent       string    `json:"payment_indent"`
+	PaymentMethod       string    `json:"payment_method"`
 	BankReturnCode      string    `json:"bank_return_code"`
 	TransactionStatusID int       `json:"transaction_status_id"`
 	CreatedAt           time.Time `json:"-"`
@@ -134,15 +136,20 @@ func (m *DBModel***REMOVED*** InsertTransaction(txn Transaction***REMOVED*** (in
 	defer close(***REMOVED***
 
 	stmt := `insert into transactions 
-		(amount, currency, last_four, bank_return_code,
+		(amount, currency, last_four, bank_return_code, expiry_month, expiry_year,
+		payment_indent, payment_method,
 		transaction_status_id, created_at, updated_at***REMOVED*** 
-		values (?, ?, ?, ?, ?, ?, ?***REMOVED***`
+		values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?***REMOVED***`
 
 	result, err := m.DB.ExecContext(ctx, stmt,
 		txn.Amount,
 		txn.Currency,
 		txn.LastFour,
 		txn.BankReturnCode,
+		txn.ExpiryMonth,
+		txn.ExpiryYear,
+		txn.PaymentIndent,
+		txn.PaymentMethod,
 		txn.TransactionStatusID,
 		time.Now(***REMOVED***,
 		time.Now(***REMOVED***,
@@ -193,15 +200,16 @@ func (m *DBModel***REMOVED*** InsertOrder(order Order***REMOVED*** (int, error**
 	defer close(***REMOVED***
 
 	stmt := `insert into orders 
-		(widget_id, transaction_id, status_id, quantity,
+		(widget_id, transaction_id, status_id, quantity, customer_id,
 		amount, created_at, updated_at***REMOVED*** 
-		values (?, ?, ?, ?, ?, ?, ?***REMOVED***`
+		values (?, ?, ?, ?, ?, ?, ?, ?***REMOVED***`
 
 	result, err := m.DB.ExecContext(ctx, stmt,
 		order.WidgetID,
 		order.TransactionID,
 		order.StatusID,
 		order.Quantity,
+		order.CustomerID,
 		order.Amount,
 		time.Now(***REMOVED***,
 		time.Now(***REMOVED***,

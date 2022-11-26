@@ -1,0 +1,20 @@
+{{template "base" .***REMOVED******REMOVED***
+
+{{define "title"***REMOVED******REMOVED***
+    Virtual Terminal Payment Secceeded!
+{{end***REMOVED******REMOVED***
+
+{{define "content"***REMOVED******REMOVED***
+    <h2 class="mt-5">Virtual Terminal Payment Secceeded</h2>
+    <hr>
+    {{$txn := index .Data "txn"***REMOVED******REMOVED***
+    <p>Payment Indent: {{$txn.PaymentIndentID***REMOVED******REMOVED***</p>
+    <p>Email: {{$txn.Email***REMOVED******REMOVED***</p>
+    <p>Payment Method: {{$txn.PaymentMethodID***REMOVED******REMOVED***</p>
+    <p>Payment Amount: {{$txn.PaymentAmount***REMOVED******REMOVED***</p>
+    <p>Currency: {{$txn.PaymentCurrency***REMOVED******REMOVED***</p>
+    <p>Last Four: {{$txn.LastFour***REMOVED******REMOVED***</p>
+    <p>Bank Return Code: {{$txn.BankReturnCode***REMOVED******REMOVED***</p>
+    <p>Expire Date: {{$txn.ExpiryMonth***REMOVED******REMOVED***/{{$txn.ExpiryYear***REMOVED******REMOVED***</p>
+
+{{end***REMOVED******REMOVED***

@@ -9,7 +9,7 @@
 <hr>
 <div id="card-messages" class="alert alert-danger text-center d-none"></div>
 <form 
-    action="/payment-succeeded" 
+    action="/virtual-terminal-payment-succeeded" 
     method="post"
     name="charge_form"
     id="charge_form"
@@ -55,9 +55,9 @@
 </form>
 {{end***REMOVED******REMOVED***
 <script>
-    document.getElementById("charge_amount", function(evt***REMOVED***{
+    document.getElementById("charge_amount"***REMOVED***.addEventListener("change", function(evt***REMOVED***{
         if (evt.target.value !== ""***REMOVED*** {
-            document.getElementById("amount"***REMOVED***.value = evt.target.value * 100;
+            document.getElementById("amount"***REMOVED***.value = parseInt((evt.target.value * 100***REMOVED***,10***REMOVED***;
         ***REMOVED*** else {
             document.getElementById("amount"***REMOVED***.value = 0;
         ***REMOVED***
