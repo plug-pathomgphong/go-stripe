@@ -21,7 +21,7 @@ func (app *application***REMOVED*** Home(w http.ResponseWriter, r *http.Request*
 func (app *application***REMOVED*** VirtualTerminal(w http.ResponseWriter, r *http.Request***REMOVED*** {
 	// stringMap := make(map[string]string***REMOVED***
 	// stringMap["publishable_key"] = app.config.stripe.key
-	if err := app.renderTemplate(w, r, "terminal", &templateData{***REMOVED***, "stripe-js"***REMOVED***; err != nil {
+	if err := app.renderTemplate(w, r, "terminal", &templateData{***REMOVED******REMOVED***; err != nil {
 		app.errorLog.Println(err***REMOVED***
 ***REMOVED***
 ***REMOVED***
@@ -309,6 +309,13 @@ func (app *application***REMOVED*** BronzePlan(w http.ResponseWriter, r *http.Re
 func (app *application***REMOVED*** BronzePlanReceipt(w http.ResponseWriter, r *http.Request***REMOVED*** {
 
 	if err := app.renderTemplate(w, r, "receipt-plan", &templateData{***REMOVED******REMOVED***; err != nil {
+		app.errorLog.Println(err***REMOVED***
+***REMOVED***
+***REMOVED***
+
+func (app *application***REMOVED*** LoginPage(w http.ResponseWriter, r *http.Request***REMOVED*** {
+
+	if err := app.renderTemplate(w, r, "login", &templateData{***REMOVED******REMOVED***; err != nil {
 		app.errorLog.Println(err***REMOVED***
 ***REMOVED***
 ***REMOVED***

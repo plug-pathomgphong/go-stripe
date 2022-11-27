@@ -12,9 +12,13 @@ func (app *application***REMOVED*** routes(***REMOVED*** http.Handler {
 
 	mux.Get("/", app.Home***REMOVED***
 
-	mux.Get("/virture-terminal", app.VirtualTerminal***REMOVED***
-	mux.Post("/virtual-terminal-payment-succeeded", app.VirtualTerminalPaymentSucceeded***REMOVED***
-	mux.Get("/virtual-terminal-receipt", app.VirtualTerminalReceipt***REMOVED***
+	mux.Route("/admin", func(r chi.Router***REMOVED*** {
+		r.Use(app.Auth***REMOVED***
+		mux.Get("/virtual-terminal", app.VirtualTerminal***REMOVED***
+***REMOVED******REMOVED***
+
+	// mux.Post("/virtual-terminal-payment-succeeded", app.VirtualTerminalPaymentSucceeded***REMOVED***
+	// mux.Get("/virtual-terminal-receipt", app.VirtualTerminalReceipt***REMOVED***
 
 	mux.Get("/widget/{id***REMOVED***", app.ChangeOnce***REMOVED***
 	mux.Post("/payment-succeeded", app.PaymentSucceeded***REMOVED***
@@ -22,6 +26,9 @@ func (app *application***REMOVED*** routes(***REMOVED*** http.Handler {
 
 	mux.Get("/plan/bronze", app.BronzePlan***REMOVED***
 	mux.Get("/receipt/bronze", app.BronzePlanReceipt***REMOVED***
+
+	// auth route
+	mux.Get("/login", app.LoginPage***REMOVED***
 
 	fileServer := http.FileServer(http.Dir("./static"***REMOVED******REMOVED***
 	mux.Handle("/static/*", http.StripPrefix("/static", fileServer***REMOVED******REMOVED***

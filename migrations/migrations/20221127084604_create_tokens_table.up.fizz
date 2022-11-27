@@ -1,0 +1,11 @@
+create_table("tokens"***REMOVED*** {
+  t.Column("id", "integer", {primary: true***REMOVED******REMOVED***
+  t.Column("user_id", "integer", {"unsigned": true***REMOVED******REMOVED***
+  t.Column("name", "string", {"size": 255***REMOVED******REMOVED***
+  t.Column("email", "string", {***REMOVED******REMOVED***
+  t.Column("token_hash", "string", {***REMOVED******REMOVED***
+***REMOVED***
+
+sql("alter table tokens modify token_hash varbinary(255***REMOVED***;"***REMOVED***
+sql("alter table tokens alter column created_at set default now(***REMOVED***;"***REMOVED***
+sql("alter table tokens alter column updated_at set default now(***REMOVED***;"***REMOVED***

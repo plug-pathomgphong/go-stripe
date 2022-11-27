@@ -26,5 +26,15 @@ func (app *application***REMOVED*** routes(***REMOVED*** http.Handler {
 	mux.Get("/api/widget/{id***REMOVED***", app.GetWidgetByID***REMOVED***
 
 	mux.Post("/api/create-customer-and-subscribe-to-plan", app.CreateCustomerAndSubscribeToPlan***REMOVED***
+
+	mux.Post("/api/authenticate", app.CreateAuthToken***REMOVED***
+	mux.Post("/api/is-authenticated", app.CheckAuthentication***REMOVED***
+
+	mux.Route("/api/admin", func(r chi.Router***REMOVED*** {
+		r.Use(app.Auth***REMOVED***
+
+		r.Post("/virtual-terminal-succeeded", app.VirtualTerminalPaymentSucceeded***REMOVED***
+***REMOVED******REMOVED***
+
 	return mux
 ***REMOVED***

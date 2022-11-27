@@ -11,6 +11,10 @@
 
     {{end***REMOVED******REMOVED***
     </title>
+    <script>
+      // check auth function
+    </script>
+    {{block "in-head" .***REMOVED******REMOVED*** {{end***REMOVED******REMOVED***
   </head>
   <body>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -25,9 +29,7 @@
           <li class="nav-item active">
             <a class="nav-link active" aria-current="page" href="/">Home</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/virture-terminal">Virtual terminal</a>
-          </li>
+
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               Products
@@ -36,6 +38,15 @@
               <a class="dropdown-item" href="/widget/1">Buy one widget</a>
               <a class="dropdown-item" href="/plan/bronze">Subscription</a>
             </div>
+          </li>
+          <li id="vt-link" class="nav-item d-none">
+            <a class="nav-link" href="/admin/virtual-terminal">Virtual terminal</a>
+          </li>
+        </ul>
+
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-2">
+          <li id="login-link" class="nav-item">
+            <a class="nav-link" aria-current="login" href="/login">Login</a>
           </li>
         </ul>
        
@@ -50,7 +61,58 @@
        </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
-    
+    <script>
+    let loginLink = document.getElementById("login-link"***REMOVED***
+    let vtLink = document.getElementById("vt-link"***REMOVED***
+
+    document.addEventListener("DOMContentLoaded", function(***REMOVED***{
+      if (localStorage.getItem("token"***REMOVED*** !== null***REMOVED*** {
+        loginLink.innerHTML = '<a class="nav-link" onclick="logout(***REMOVED***" href="#!">Logout</a>'
+        vtLink.classList.remove("d-none"***REMOVED***
+      ***REMOVED***else{
+        loginLink.innerHTML = '<a class="nav-link" href="/login">Login</a>'
+      ***REMOVED***
+      loginLink.classList.remove("d-none"***REMOVED***
+    ***REMOVED******REMOVED***
+
+    function logout(***REMOVED*** {
+      localStorage.removeItem("token"***REMOVED***
+      localStorage.removeItem("token_expiry"***REMOVED***
+      location.href = "/login"
+    ***REMOVED***
+
+    function checkAuth(***REMOVED*** {
+        let token = localStorage.getItem("token"***REMOVED***
+        if (localStorage.getItem("token"***REMOVED*** === null***REMOVED*** {
+          location.href = "/login"
+          return
+        ***REMOVED***else{
+          
+          const myHeaders = new Headers(***REMOVED***
+          myHeaders.append("Content-Type", "application/json"***REMOVED***
+          myHeaders.append("Authorization", "Bearer " + token***REMOVED***
+
+          const requestOptions = {
+            method: 'post',
+            headers: myHeaders,
+          ***REMOVED***
+
+          fetch("{{.API***REMOVED******REMOVED***/api/is-authenticated", requestOptions***REMOVED***
+          .then(response => response.json(***REMOVED******REMOVED***
+          .then(data => {
+            if (data.error === true***REMOVED*** {
+              localStorage.removeItem("token"***REMOVED***
+              localStorage.removeItem("token_expiry"***REMOVED***
+              console.log("not logged in"***REMOVED***
+              location.href = "/login"
+            ***REMOVED*** else {
+              console.log("Logged in"***REMOVED***
+            ***REMOVED***
+          ***REMOVED******REMOVED***
+        ***REMOVED***
+      
+    ***REMOVED***
+    </script>
     {{block "js" .***REMOVED******REMOVED***
 
     {{end***REMOVED******REMOVED***

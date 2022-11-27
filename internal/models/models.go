@@ -3,6 +3,7 @@ package models
 ***REMOVED***
 	"context"
 	"database/sql"
+	"strings"
 ***REMOVED***
 ***REMOVED***
 
@@ -229,4 +230,32 @@ func (m *DBModel***REMOVED*** InsertOrder(order Order***REMOVED*** (int, error**
 ***REMOVED***
 
 	return int(id***REMOVED***, nil
+***REMOVED***
+
+func (m *DBModel***REMOVED*** GetUserByEmail(email string***REMOVED*** (User, error***REMOVED*** {
+	ctx, cancel := context.WithTimeout(context.Background(***REMOVED***, 3*time.Second***REMOVED***
+	defer cancel(***REMOVED***
+
+	email = strings.ToLower(email***REMOVED***
+	var u User
+
+	row := m.DB.QueryRowContext(ctx, `
+		select 
+			id, first_name, last_name, email, password, created_at, updated_at
+		from
+			users
+		where email = ?`, email***REMOVED***
+	err := row.Scan(
+		&u.ID,
+		&u.FirstName,
+		&u.LastName,
+		&u.Email,
+		&u.Password,
+		&u.CreatedAt,
+		&u.UpdatedAt,
+	***REMOVED***
+***REMOVED***
+		return u, err
+***REMOVED***
+	return u, nil
 ***REMOVED***
