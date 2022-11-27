@@ -9,7 +9,7 @@
     <hr>
     <div id="login-messages" class="alert alert-danger text-center d-none"></div>
     <form 
-        action="" 
+        action="/login" 
         method="post"
         name="login_form"
         id="login_form"
@@ -85,7 +85,8 @@ let loginMessages = document.getElementById("login-messages"***REMOVED***
               localStorage.setItem('token', data.authentication_token.token***REMOVED***
               localStorage.setItem('token_expiry', data.authentication_token.expiry***REMOVED***
               showSuccess(***REMOVED***
-               location.href = "/"
+              document.getElementById("login_form"***REMOVED***.submit(***REMOVED***
+               {{/* location.href = "/" */***REMOVED******REMOVED***
             ***REMOVED*** else {
               showError(data.message***REMOVED***
             ***REMOVED***

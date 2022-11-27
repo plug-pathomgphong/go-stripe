@@ -14,7 +14,7 @@ func (app *application***REMOVED*** routes(***REMOVED*** http.Handler {
 
 	mux.Route("/admin", func(r chi.Router***REMOVED*** {
 		r.Use(app.Auth***REMOVED***
-		mux.Get("/virtual-terminal", app.VirtualTerminal***REMOVED***
+		r.Get("/virtual-terminal", app.VirtualTerminal***REMOVED***
 ***REMOVED******REMOVED***
 
 	// mux.Post("/virtual-terminal-payment-succeeded", app.VirtualTerminalPaymentSucceeded***REMOVED***
@@ -29,6 +29,8 @@ func (app *application***REMOVED*** routes(***REMOVED*** http.Handler {
 
 	// auth route
 	mux.Get("/login", app.LoginPage***REMOVED***
+	mux.Post("/login", app.PostLoginPage***REMOVED***
+	mux.Get("/logout", app.Logout***REMOVED***
 
 	fileServer := http.FileServer(http.Dir("./static"***REMOVED******REMOVED***
 	mux.Handle("/static/*", http.StripPrefix("/static", fileServer***REMOVED******REMOVED***

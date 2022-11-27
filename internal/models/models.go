@@ -3,8 +3,11 @@ package models
 ***REMOVED***
 	"context"
 	"database/sql"
+	"errors"
 	"strings"
 ***REMOVED***
+
+	"golang.org/x/crypto/bcrypt"
 ***REMOVED***
 
 // DBModel is the type for database connection values
@@ -258,4 +261,32 @@ func (m *DBModel***REMOVED*** GetUserByEmail(email string***REMOVED*** (User, er
 		return u, err
 ***REMOVED***
 	return u, nil
+***REMOVED***
+
+func (m *DBModel***REMOVED*** Authenticate(email, password string***REMOVED*** (int, error***REMOVED*** {
+	ctx, cancel := context.WithTimeout(context.Background(***REMOVED***, 3*time.Second***REMOVED***
+	defer cancel(***REMOVED***
+
+	var id int
+	var hashedPassword string
+
+	row := m.DB.QueryRowContext(ctx, `
+		select 
+			id, password
+		from
+			users
+		where email = ?`, email***REMOVED***
+	err := row.Scan(&id, &hashedPassword***REMOVED***
+***REMOVED***
+		return id, err
+***REMOVED***
+
+	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword***REMOVED***, []byte(password***REMOVED******REMOVED***
+	if err == bcrypt.ErrMismatchedHashAndPassword {
+		return 0, errors.New("incorrect password"***REMOVED***
+***REMOVED*** else if err != nil {
+		return 0, err
+***REMOVED***
+
+	return id, nil
 ***REMOVED***

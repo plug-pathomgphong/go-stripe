@@ -319,3 +319,31 @@ func (app *application***REMOVED*** LoginPage(w http.ResponseWriter, r *http.Req
 		app.errorLog.Println(err***REMOVED***
 ***REMOVED***
 ***REMOVED***
+
+func (app *application***REMOVED*** PostLoginPage(w http.ResponseWriter, r *http.Request***REMOVED*** {
+	app.Session.RenewToken(r.Context(***REMOVED******REMOVED***
+
+	err := r.ParseForm(***REMOVED***
+***REMOVED***
+		app.errorLog.Println(err***REMOVED***
+		return
+***REMOVED***
+	email := r.Form.Get("email"***REMOVED***
+	password := r.Form.Get("password"***REMOVED***
+
+	id, err := app.DB.Authenticate(email, password***REMOVED***
+***REMOVED***
+		http.Redirect(w, r, "/login", http.StatusSeeOther***REMOVED***
+		return
+***REMOVED***
+
+	app.Session.Put(r.Context(***REMOVED***, "userID", id***REMOVED***
+	http.Redirect(w, r, "/", http.StatusSeeOther***REMOVED***
+***REMOVED***
+
+func (app *application***REMOVED*** Logout(w http.ResponseWriter, r *http.Request***REMOVED*** {
+	app.Session.Destroy(r.Context(***REMOVED******REMOVED***
+	app.Session.RenewToken(r.Context(***REMOVED******REMOVED***
+
+	http.Redirect(w, r, "/login", http.StatusSeeOther***REMOVED***
+***REMOVED***
