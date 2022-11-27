@@ -12,9 +12,13 @@ func (app *application) routes() http.Handler {
 
 	mux.Get("/", app.Home)
 
-	mux.Get("/virture-terminal", app.VirtualTerminal)
-	mux.Post("/virtual-terminal-payment-succeeded", app.VirtualTerminalPaymentSucceeded)
-	mux.Get("/virtual-terminal-receipt", app.VirtualTerminalReceipt)
+	mux.Route("/admin", func(r chi.Router) {
+		r.Use(app.Auth)
+		mux.Get("/virtual-terminal", app.VirtualTerminal)
+	})
+
+	// mux.Post("/virtual-terminal-payment-succeeded", app.VirtualTerminalPaymentSucceeded)
+	// mux.Get("/virtual-terminal-receipt", app.VirtualTerminalReceipt)
 
 	mux.Get("/widget/{id}", app.ChangeOnce)
 	mux.Post("/payment-succeeded", app.PaymentSucceeded)
@@ -22,6 +26,9 @@ func (app *application) routes() http.Handler {
 
 	mux.Get("/plan/bronze", app.BronzePlan)
 	mux.Get("/receipt/bronze", app.BronzePlanReceipt)
+
+	// auth route
+	mux.Get("/login", app.LoginPage)
 
 	fileServer := http.FileServer(http.Dir("./static"))
 	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))
