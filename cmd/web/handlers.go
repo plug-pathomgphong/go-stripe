@@ -2,12 +2,15 @@
 
 ***REMOVED***
 ***REMOVED***
+***REMOVED***
 	"strconv"
 ***REMOVED***
 
 	"github.com/go-chi/chi/v5"
 	"github.com/plug-pathomgphong/dotnet-webapi/internal/cards"
+	"github.com/plug-pathomgphong/dotnet-webapi/internal/encyption"
 ***REMOVED***
+	"github.com/plug-pathomgphong/dotnet-webapi/internal/urlsigner"
 ***REMOVED***
 
 func (app *application***REMOVED*** Home(w http.ResponseWriter, r *http.Request***REMOVED*** {
@@ -346,4 +349,55 @@ func (app *application***REMOVED*** Logout(w http.ResponseWriter, r *http.Reques
 	app.Session.RenewToken(r.Context(***REMOVED******REMOVED***
 
 	http.Redirect(w, r, "/login", http.StatusSeeOther***REMOVED***
+***REMOVED***
+
+func (app *application***REMOVED*** ForgotPassword(w http.ResponseWriter, r *http.Request***REMOVED*** {
+
+	if err := app.renderTemplate(w, r, "forgot-password", &templateData{***REMOVED******REMOVED***; err != nil {
+		app.errorLog.Println(err***REMOVED***
+***REMOVED***
+***REMOVED***
+
+func (app *application***REMOVED*** ShowResetPassword(w http.ResponseWriter, r *http.Request***REMOVED*** {
+	email := r.URL.Query(***REMOVED***.Get("email"***REMOVED***
+	theURL := r.RequestURI
+	testURL := fmt.Sprintf("%s%s", app.config.frontend, theURL***REMOVED***
+
+	signer := urlsigner.Signer{
+		Secret: []byte(app.config.secretkey***REMOVED***,
+***REMOVED***
+
+	valid := signer.VerifyToken(testURL***REMOVED***
+
+	if !valid {
+		app.errorLog.Println("Invalid url - tamering detected"***REMOVED***
+		return
+***REMOVED***
+
+	// make sure not expired
+	expired := signer.Expired(testURL, 60***REMOVED***
+	if expired {
+		app.errorLog.Println("Link expired"***REMOVED***
+		return
+***REMOVED***
+
+	encryptor := encyption.Encyption{
+		Key: []byte(app.config.secretkey***REMOVED***,
+***REMOVED***
+
+	encryptedEmail, err := encryptor.Encrypt(email***REMOVED***
+***REMOVED***
+		app.errorLog.Println("Encryption failed"***REMOVED***
+		return
+***REMOVED***
+
+	data := make(map[string]interface{***REMOVED******REMOVED***
+	data["email"] = encryptedEmail
+
+	if err := app.renderTemplate(w, r, "reset-password", &templateData{
+		Data: data,
+***REMOVED******REMOVED***; err != nil {
+		app.errorLog.Println(err***REMOVED***
+***REMOVED***
+
 ***REMOVED***

@@ -29,6 +29,8 @@ func (app *application***REMOVED*** routes(***REMOVED*** http.Handler {
 
 	mux.Post("/api/authenticate", app.CreateAuthToken***REMOVED***
 	mux.Post("/api/is-authenticated", app.CheckAuthentication***REMOVED***
+	mux.Post("/api/forgot-password", app.SendPasswordResetEmail***REMOVED***
+	mux.Post("/api/reset-password", app.ResetPassword***REMOVED***
 
 	mux.Route("/api/admin", func(r chi.Router***REMOVED*** {
 		r.Use(app.Auth***REMOVED***

@@ -11,8 +11,11 @@
 
 	"github.com/go-chi/chi/v5"
 	"github.com/plug-pathomgphong/dotnet-webapi/internal/cards"
+	"github.com/plug-pathomgphong/dotnet-webapi/internal/encyption"
 ***REMOVED***
+	"github.com/plug-pathomgphong/dotnet-webapi/internal/urlsigner"
 	"github.com/stripe/stripe-go/v72"
+	"golang.org/x/crypto/bcrypt"
 ***REMOVED***
 
 type stripePayload struct {
@@ -421,4 +424,116 @@ func (app *application***REMOVED*** VirtualTerminalPaymentSucceeded(w http.Respo
 ***REMOVED***
 
 	app.writeJSON(w, http.StatusOK, txn***REMOVED***
+***REMOVED***
+
+func (app *application***REMOVED*** SendPasswordResetEmail(w http.ResponseWriter, r *http.Request***REMOVED*** {
+	var payload struct {
+		Email string `json:"email"`
+***REMOVED***
+
+	fmt.Println("email read json"***REMOVED***
+	err := app.readJSON(w, r, &payload***REMOVED***
+***REMOVED***
+		app.badRequest(w, r, err***REMOVED***
+		return
+***REMOVED***
+
+	// verify that email exists
+	_, err = app.DB.GetUserByEmail(payload.Email***REMOVED***
+***REMOVED***
+		var resp struct {
+			Error   bool   `json:"error"`
+			Message string `json:"message"`
+	***REMOVED***
+		resp.Error = true
+		resp.Message = "No matching email found on our system"
+		app.writeJSON(w, http.StatusCreated, resp***REMOVED***
+		return
+***REMOVED***
+
+	link := fmt.Sprintf("%s/reset-password?email=%s", app.config.frontend, payload.Email***REMOVED***
+
+	sign := urlsigner.Signer{
+		Secret: []byte(app.config.secretkey***REMOVED***,
+***REMOVED***
+
+	signedLink := sign.GenerateTokenFromString(link***REMOVED***
+
+	var data struct {
+		Link string
+***REMOVED***
+
+	data.Link = signedLink
+
+	fmt.Println("send email"***REMOVED***
+	// send email
+	err = app.SendMail("info@widgets.com", payload.Email, "Password Reset Request", "password-reset", data***REMOVED***
+***REMOVED***
+		app.errorLog.Println(err***REMOVED***
+		app.badRequest(w, r, err***REMOVED***
+		return
+***REMOVED***
+
+	var resp struct {
+		Error   bool   `json:"error"`
+		Message string `json:"message"`
+***REMOVED***
+
+	resp.Error = false
+
+	app.writeJSON(w, http.StatusCreated, resp***REMOVED***
+***REMOVED***
+
+func (app *application***REMOVED*** ResetPassword(w http.ResponseWriter, r *http.Request***REMOVED*** {
+	var payload struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+***REMOVED***
+
+	err := app.readJSON(w, r, &payload***REMOVED***
+***REMOVED***
+		app.badRequest(w, r, err***REMOVED***
+		return
+***REMOVED***
+	fmt.Println("payload:", payload***REMOVED***
+
+	encryptor := encyption.Encyption{
+		Key: []byte(app.config.secretkey***REMOVED***,
+***REMOVED***
+
+	realEmail, err := encryptor.Decrypt(payload.Email***REMOVED***
+***REMOVED***
+		app.badRequest(w, r, err***REMOVED***
+		return
+***REMOVED***
+
+	user, err := app.DB.GetUserByEmail(realEmail***REMOVED***
+***REMOVED***
+		app.badRequest(w, r, err***REMOVED***
+		return
+***REMOVED***
+
+	fmt.Println("GenerateFromPassword:"***REMOVED***
+	newHash, err := bcrypt.GenerateFromPassword([]byte(payload.Password***REMOVED***, 12***REMOVED***
+***REMOVED***
+		app.badRequest(w, r, err***REMOVED***
+		return
+***REMOVED***
+
+	fmt.Println("UpdatePasswordForUser:", user, string(newHash***REMOVED******REMOVED***
+	err = app.DB.UpdatePasswordForUser(user, string(newHash***REMOVED******REMOVED***
+***REMOVED***
+		app.badRequest(w, r, err***REMOVED***
+		return
+***REMOVED***
+
+	var resp struct {
+		Error   bool   `json:"error"`
+		Message string `json:"message"`
+***REMOVED***
+
+	resp.Error = false
+	resp.Message = "password changed"
+
+	app.writeJSON(w, http.StatusCreated, resp***REMOVED***
 ***REMOVED***

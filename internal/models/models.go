@@ -290,3 +290,16 @@ func (m *DBModel***REMOVED*** Authenticate(email, password string***REMOVED*** (
 
 	return id, nil
 ***REMOVED***
+
+func (m *DBModel***REMOVED*** UpdatePasswordForUser(u User, hash string***REMOVED*** error {
+	ctx, cancel := context.WithTimeout(context.Background(***REMOVED***, 3*time.Second***REMOVED***
+	defer cancel(***REMOVED***
+
+	stmt := `update users set password = ? where id = ?`
+	_, err := m.DB.ExecContext(ctx, stmt, hash, u.ID***REMOVED***
+***REMOVED***
+		return err
+***REMOVED***
+
+	return nil
+***REMOVED***
