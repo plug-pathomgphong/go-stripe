@@ -329,7 +329,7 @@ func (app *application) authenticateToken(r *http.Request) (*models.User, error)
 	}
 	// fmt.Println("headerParts", authenticationHeader)
 	headerParts := strings.Split(authenticationHeader, " ")
-	fmt.Println("headerParts", headerParts, headerParts[0])
+	// fmt.Println("headerParts", headerParts, headerParts[0])
 	if len(headerParts) != 2 || headerParts[0] != "Bearer" {
 		return nil, errors.New("no authentication header received")
 	}
@@ -536,4 +536,14 @@ func (app *application) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	resp.Message = "password changed"
 
 	app.writeJSON(w, http.StatusCreated, resp)
+}
+
+func (app *application) AllSales(w http.ResponseWriter, r *http.Request) {
+	allSales, err := app.DB.GetAllorders()
+	if err != nil {
+		app.badRequest(w, r, err)
+		return
+	}
+
+	app.writeJSON(w, http.StatusOK, allSales)
 }

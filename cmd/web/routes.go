@@ -27,6 +27,9 @@ func (app *application) routes() http.Handler {
 	mux.Get("/plan/bronze", app.BronzePlan)
 	mux.Get("/receipt/bronze", app.BronzePlanReceipt)
 
+	mux.Get("/admin/all-sales", app.AllSales)
+	mux.Get("/admin/all-subscriptions", app.AllSubscriptions)
+
 	// auth route
 	mux.Get("/login", app.LoginPage)
 	mux.Post("/login", app.PostLoginPage)

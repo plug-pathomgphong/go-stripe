@@ -20,4 +20,5 @@
 *.env
 
 migrations/*.yml
+database.yml
 *.DS_Store
