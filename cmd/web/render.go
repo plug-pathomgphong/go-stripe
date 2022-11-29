@@ -1,18 +1,18 @@
-***REMOVED***
+package main
 
-***REMOVED***
+import (
 	"embed"
-***REMOVED***
-***REMOVED***
+	"fmt"
+	"net/http"
 	"strings"
-***REMOVED***
-***REMOVED***
+	"text/template"
+)
 
 type templateData struct {
 	StringMap            map[string]string
 	IntMap               map[string]int
 	FloatMap             map[string]float32
-	Data                 map[string]interface{***REMOVED***
+	Data                 map[string]interface{}
 	CSRFToke             string
 	Flash                string
 	Warning              string
@@ -22,79 +22,79 @@ type templateData struct {
 	CSSVersion           string
 	StripeSecretKey      string
 	StripePublishableKey string
-***REMOVED***
+}
 
 var functions = template.FuncMap{
 	"formatCurrency": formatCurrency,
-***REMOVED***
+}
 
-func formatCurrency(n int***REMOVED*** string {
-	f := float32(n***REMOVED*** / float32(100***REMOVED***
-	return fmt.Sprintf("$%.2f", f***REMOVED***
-***REMOVED***
+func formatCurrency(n int) string {
+	f := float32(n) / float32(100)
+	return fmt.Sprintf("$%.2f", f)
+}
 
 //go:embed templates
 var templateFS embed.FS
 
-func (app *application***REMOVED*** addDefaultData(td *templateData, r *http.Request***REMOVED*** *templateData {
+func (app *application) addDefaultData(td *templateData, r *http.Request) *templateData {
 	td.API = app.config.api
 	td.StripePublishableKey = app.config.stripe.key
 	td.StripeSecretKey = app.config.stripe.secret
 	return td
-***REMOVED***
+}
 
-func (app *application***REMOVED*** renderTemplate(w http.ResponseWriter, r *http.Request, page string, td *templateData, partials ...string***REMOVED*** error {
+func (app *application) renderTemplate(w http.ResponseWriter, r *http.Request, page string, td *templateData, partials ...string) error {
 	var t *template.Template
 	var err error
-	templateToRender := fmt.Sprintf("templates/%s.page.gohtml", page***REMOVED***
+	templateToRender := fmt.Sprintf("templates/%s.page.gohtml", page)
 
 	_, templateInMap := app.templateCache[templateToRender]
 	if app.config.env == "production" && templateInMap {
 		t = app.templateCache[templateToRender]
-***REMOVED*** else {
-		t, err = app.parseTemplate(partials, page, templateToRender***REMOVED***
-	***REMOVED***
-			app.errorLog.Println(err***REMOVED***
+	} else {
+		t, err = app.parseTemplate(partials, page, templateToRender)
+		if err != nil {
+			app.errorLog.Println(err)
 			return err
-	***REMOVED***
-***REMOVED***
+		}
+	}
 
 	if td == nil {
-		td = &templateData{***REMOVED***
-***REMOVED***
+		td = &templateData{}
+	}
 
-	td = app.addDefaultData(td, r***REMOVED***
+	td = app.addDefaultData(td, r)
 
-	err = t.Execute(w, td***REMOVED***
-***REMOVED***
-		app.errorLog.Println(err***REMOVED***
+	err = t.Execute(w, td)
+	if err != nil {
+		app.errorLog.Println(err)
 		return err
-***REMOVED***
+	}
 	return nil
-***REMOVED***
+}
 
-func (app *application***REMOVED*** parseTemplate(partials []string, page, templateToRender string***REMOVED*** (*template.Template, error***REMOVED*** {
+func (app *application) parseTemplate(partials []string, page, templateToRender string) (*template.Template, error) {
 	var t *template.Template
 	var err error
 
 	// build partials
-	if len(partials***REMOVED*** > 0 {
+	if len(partials) > 0 {
 		for i, x := range partials {
-			partials[i] = fmt.Sprintf("templates/%s.partials.gohtml", x***REMOVED***
-	***REMOVED***
-***REMOVED***
+			partials[i] = fmt.Sprintf("templates/%s.partials.gohtml", x)
+		}
+	}
 
-	if len(partials***REMOVED*** > 0 {
-		t, err = template.New(fmt.Sprintf("%s.page.gohtml", page***REMOVED******REMOVED***.Funcs(functions***REMOVED***.ParseFS(templateFS, "templates/base.layout.gohtml", strings.Join(partials, ","***REMOVED***, templateToRender***REMOVED***
-***REMOVED*** else {
-		t, err = template.New(fmt.Sprintf("%s.page.gohtml", page***REMOVED******REMOVED***.Funcs(functions***REMOVED***.ParseFS(templateFS, "templates/base.layout.gohtml", templateToRender***REMOVED***
-***REMOVED***
+	if len(partials) > 0 {
+		t, err = template.New(fmt.Sprintf("%s.page.gohtml", page)).Funcs(functions).ParseFS(templateFS, "templates/base.layout.gohtml", strings.Join(partials, ","), templateToRender)
+	} else {
+		t, err = template.New(fmt.Sprintf("%s.page.gohtml", page)).Funcs(functions).ParseFS(templateFS, "templates/base.layout.gohtml", templateToRender)
+	}
 
-***REMOVED***
-		app.errorLog.Println(err***REMOVED***
+	if err != nil {
+		app.errorLog.Println(err)
 		return nil, err
-***REMOVED***
+	}
 
 	app.templateCache[templateToRender] = t
 	return t, nil
-***REMOVED***
+}

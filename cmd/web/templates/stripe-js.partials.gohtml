@@ -1,132 +1,132 @@
-{{define "stripe-js"***REMOVED******REMOVED***
+{{define "stripe-js"}}
     <script src="https://js.stripe.com/v3/"></script>
     <script>
     let card;
     let stripe;
-    const cardMessages = document.getElementById("card-messages"***REMOVED***
-    const payButton = document.getElementById("pay-button"***REMOVED***
-    const processing = document.getElementById("processing-payment"***REMOVED***
+    const cardMessages = document.getElementById("card-messages")
+    const payButton = document.getElementById("pay-button")
+    const processing = document.getElementById("processing-payment")
 
-    stripe = Stripe("{{.StripePublishableKey***REMOVED******REMOVED***"***REMOVED***;
+    stripe = Stripe("{{.StripePublishableKey}}");
    
-    function hidePayButton(***REMOVED*** {
-        payButton.classList.add("d-none"***REMOVED***
-        processing.classList.remove("d-none"***REMOVED***
-    ***REMOVED***
+    function hidePayButton() {
+        payButton.classList.add("d-none")
+        processing.classList.remove("d-none")
+    }
 
-    function showPayButton(***REMOVED*** {
-        payButton.classList.remove("d-none"***REMOVED***
-        processing.classList.add("d-none"***REMOVED***
-    ***REMOVED***
+    function showPayButton() {
+        payButton.classList.remove("d-none")
+        processing.classList.add("d-none")
+    }
 
-    function showCardError(msg***REMOVED*** {
-        cardMessages.classList.add("alert-danger"***REMOVED***;
-        cardMessages.classList.remove("alert-success"***REMOVED***;
-        cardMessages.classList.remove("d-none"***REMOVED***;
+    function showCardError(msg) {
+        cardMessages.classList.add("alert-danger");
+        cardMessages.classList.remove("alert-success");
+        cardMessages.classList.remove("d-none");
         cardMessages.innerText = msg;
-    ***REMOVED***
+    }
 
-    function showCardSuccess(***REMOVED*** {
-        cardMessages.classList.remove("alert-danger"***REMOVED***;
-        cardMessages.classList.add("alert-success"***REMOVED***;
-        cardMessages.classList.remove("d-none"***REMOVED***;
+    function showCardSuccess() {
+        cardMessages.classList.remove("alert-danger");
+        cardMessages.classList.add("alert-success");
+        cardMessages.classList.remove("d-none");
         cardMessages.innerText = "Transaction successful";
-    ***REMOVED***  
+    }  
 
-    function val(***REMOVED***{
-      let form = document.getElementById("charge_form"***REMOVED***
-      if(form.checkValidity(***REMOVED*** == false***REMOVED*** {
-        this.event.preventDefault(***REMOVED***;
-        this.event.stopPropagation(***REMOVED***;
-        form.classList.add("was-validated"***REMOVED***;
+    function val(){
+      let form = document.getElementById("charge_form")
+      if(form.checkValidity() == false) {
+        this.event.preventDefault();
+        this.event.stopPropagation();
+        form.classList.add("was-validated");
         return;
-      ***REMOVED***
-      form.classList.add("was-validated"***REMOVED***
-      hidePayButton(***REMOVED***
+      }
+      form.classList.add("was-validated")
+      hidePayButton()
 
-      let amountToCharge = document.getElementById("amount"***REMOVED***.value
+      let amountToCharge = document.getElementById("amount").value
       
       let payload = {
         amount: amountToCharge,
         currency: 'cad',
-      ***REMOVED***
+      }
 
       const requestOptions = {
         method: 'post',
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
-        ***REMOVED***,
-        body: JSON.stringify(payload***REMOVED***
-      ***REMOVED***
+        },
+        body: JSON.stringify(payload)
+      }
      
-      fetch("{{.API***REMOVED******REMOVED***/api/payment-intent", requestOptions***REMOVED***
-        .then(response => response.text(***REMOVED******REMOVED***
+      fetch("{{.API}}/api/payment-intent", requestOptions)
+        .then(response => response.text())
         .then(response => {
             let data;
             try {
-                data = JSON.parse(response***REMOVED***
+                data = JSON.parse(response)
                 stripe.confirmCardPayment(data.client_secret, {
                     payment_method:{
                         card: card,
                         billing_details: {
-                            name: document.getElementById("cardholder-name"***REMOVED***.value
-                        ***REMOVED***                    
-                    ***REMOVED***
+                            name: document.getElementById("cardholder-name").value
+                        }                    
+                    }
 
-                ***REMOVED******REMOVED***.then(function(result***REMOVED***{
-                    if(result.error***REMOVED*** {
-                        showCardError(result.error.message***REMOVED***;
-                        showPayButton(***REMOVED***;
-                    ***REMOVED***else if (result.paymentIntent***REMOVED***{
-                        if(result.paymentIntent.status === "succeeded"***REMOVED*** {
-                            document.getElementById("payment_method"***REMOVED***.value = result.paymentIntent.payment_method;
-                            document.getElementById("payment_intent"***REMOVED***.value = result.paymentIntent.id;
-                            document.getElementById("payment_amount"***REMOVED***.value = result.paymentIntent.amount;
-                            document.getElementById("payment_currency"***REMOVED***.value = result.paymentIntent.currency;
-                            processing.classList.add("d-none"***REMOVED***;
-                            showCardSuccess(***REMOVED***;
-                            console.log(result***REMOVED***
-                            form.submit(***REMOVED***;
-                        ***REMOVED***
-                    ***REMOVED***
-                ***REMOVED******REMOVED***
-            ***REMOVED*** catch (err***REMOVED*** {
-                console.log(err***REMOVED***;
-                showCardError("Invalid response from payment gateway!"***REMOVED***;
-                showPayButton(***REMOVED***;
-            ***REMOVED***
-        ***REMOVED******REMOVED***
-    ***REMOVED***
+                }).then(function(result){
+                    if(result.error) {
+                        showCardError(result.error.message);
+                        showPayButton();
+                    }else if (result.paymentIntent){
+                        if(result.paymentIntent.status === "succeeded") {
+                            document.getElementById("payment_method").value = result.paymentIntent.payment_method;
+                            document.getElementById("payment_intent").value = result.paymentIntent.id;
+                            document.getElementById("payment_amount").value = result.paymentIntent.amount;
+                            document.getElementById("payment_currency").value = result.paymentIntent.currency;
+                            processing.classList.add("d-none");
+                            showCardSuccess();
+                            console.log(result)
+                            form.submit();
+                        }
+                    }
+                })
+            } catch (err) {
+                console.log(err);
+                showCardError("Invalid response from payment gateway!");
+                showPayButton();
+            }
+        })
+    }
 
-    (function(***REMOVED***{
+    (function(){
         // create strpie & elements
-        const elements =stripe.elements(***REMOVED***;
+        const elements =stripe.elements();
         const style = {
             base: {
                 fontSize: '16px',
                 lineHeight: '24px'
-            ***REMOVED***
-        ***REMOVED***
+            }
+        }
 
         // create card entry
         card = elements.create('card', {
             style: style,
             hidePostalCode: true
-        ***REMOVED******REMOVED***
-        card.mount("#card-element"***REMOVED***
+        })
+        card.mount("#card-element")
 
         // check for input errors
-        card.addEventListener('change', function(event***REMOVED*** {
-            var displayError = document.getElementById("card-errors"***REMOVED***;
-            if(event.error***REMOVED*** {
-                displayError.classList.remove('d-none'***REMOVED***;
+        card.addEventListener('change', function(event) {
+            var displayError = document.getElementById("card-errors");
+            if(event.error) {
+                displayError.classList.remove('d-none');
                 displayError.textContent = event.error.message;
-            ***REMOVED*** else {
-                displayError.classList.add('d-none'***REMOVED***;
+            } else {
+                displayError.classList.add('d-none');
                 displayError.textContent = '';
-            ***REMOVED***
-        ***REMOVED******REMOVED***
-    ***REMOVED******REMOVED***(***REMOVED***;
+            }
+        })
+    })();
     </script>
-{{end***REMOVED******REMOVED***
+{{end}}

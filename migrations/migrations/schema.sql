@@ -1,4 +1,4 @@
--- MariaDB dump 10.19  Distrib 10.11.1-MariaDB, for Win64 (AMD64***REMOVED***
+-- MariaDB dump 10.19  Distrib 10.11.1-MariaDB, for Win64 (AMD64)
 --
 -- Host: 127.0.0.1    Database: widgets
 -- ------------------------------------------------------
@@ -23,14 +23,14 @@ DROP TABLE IF EXISTS `customers`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `customers` (
-  `id` int(11***REMOVED*** NOT NULL AUTO_INCREMENT,
-  `first_name` varchar(255***REMOVED*** NOT NULL,
-  `last_name` varchar(255***REMOVED*** NOT NULL,
-  `email` varchar(255***REMOVED*** NOT NULL,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp(***REMOVED***,
-  `updated_at` datetime NOT NULL DEFAULT current_timestamp(***REMOVED***,
-  PRIMARY KEY (`id`***REMOVED***
-***REMOVED*** ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `first_name` varchar(255) NOT NULL,
+  `last_name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -41,25 +41,25 @@ DROP TABLE IF EXISTS `orders`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `orders` (
-  `id` int(11***REMOVED*** NOT NULL AUTO_INCREMENT,
-  `widget_id` int(11***REMOVED*** NOT NULL,
-  `transaction_id` int(11***REMOVED*** NOT NULL,
-  `status_id` int(11***REMOVED*** NOT NULL,
-  `quantity` int(11***REMOVED*** NOT NULL,
-  `amount` int(11***REMOVED*** NOT NULL,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp(***REMOVED***,
-  `updated_at` datetime NOT NULL DEFAULT current_timestamp(***REMOVED***,
-  `customer_id` int(11***REMOVED*** NOT NULL,
-  PRIMARY KEY (`id`***REMOVED***,
-  KEY `orders_widgets_id_fk` (`widget_id`***REMOVED***,
-  KEY `orders_transactions_id_fk` (`transaction_id`***REMOVED***,
-  KEY `orders_statuses_id_fk` (`status_id`***REMOVED***,
-  KEY `orders_customers_id_fk` (`customer_id`***REMOVED***,
-  CONSTRAINT `orders_customers_id_fk` FOREIGN KEY (`customer_id`***REMOVED*** REFERENCES `customers` (`id`***REMOVED*** ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `orders_statuses_id_fk` FOREIGN KEY (`status_id`***REMOVED*** REFERENCES `statuses` (`id`***REMOVED*** ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `orders_transactions_id_fk` FOREIGN KEY (`transaction_id`***REMOVED*** REFERENCES `transactions` (`id`***REMOVED*** ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `orders_widgets_id_fk` FOREIGN KEY (`widget_id`***REMOVED*** REFERENCES `widgets` (`id`***REMOVED*** ON DELETE CASCADE ON UPDATE CASCADE
-***REMOVED*** ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `widget_id` int(11) NOT NULL,
+  `transaction_id` int(11) NOT NULL,
+  `status_id` int(11) NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `amount` int(11) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `customer_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `orders_widgets_id_fk` (`widget_id`),
+  KEY `orders_transactions_id_fk` (`transaction_id`),
+  KEY `orders_statuses_id_fk` (`status_id`),
+  KEY `orders_customers_id_fk` (`customer_id`),
+  CONSTRAINT `orders_customers_id_fk` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `orders_statuses_id_fk` FOREIGN KEY (`status_id`) REFERENCES `statuses` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `orders_transactions_id_fk` FOREIGN KEY (`transaction_id`) REFERENCES `transactions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `orders_widgets_id_fk` FOREIGN KEY (`widget_id`) REFERENCES `widgets` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -70,10 +70,10 @@ DROP TABLE IF EXISTS `schema_migration`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `schema_migration` (
-  `version` varchar(14***REMOVED*** NOT NULL,
-  PRIMARY KEY (`version`***REMOVED***,
-  UNIQUE KEY `schema_migration_version_idx` (`version`***REMOVED***
-***REMOVED*** ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `version` varchar(14) NOT NULL,
+  PRIMARY KEY (`version`),
+  UNIQUE KEY `schema_migration_version_idx` (`version`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -84,12 +84,12 @@ DROP TABLE IF EXISTS `sessions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `sessions` (
-  `token` char(43***REMOVED*** NOT NULL,
+  `token` char(43) NOT NULL,
   `data` blob NOT NULL,
-  `expiry` timestamp(6***REMOVED*** NOT NULL,
-  PRIMARY KEY (`token`***REMOVED***,
-  KEY `sessions_expiry_idx` (`expiry`***REMOVED***
-***REMOVED*** ENGINE=InnoDB DEFAULT CHARSET=latin2 COLLATE=latin2_general_ci;
+  `expiry` timestamp(6) NOT NULL,
+  PRIMARY KEY (`token`),
+  KEY `sessions_expiry_idx` (`expiry`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin2 COLLATE=latin2_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -100,12 +100,12 @@ DROP TABLE IF EXISTS `statuses`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `statuses` (
-  `id` int(11***REMOVED*** NOT NULL AUTO_INCREMENT,
-  `name` varchar(255***REMOVED*** NOT NULL,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp(***REMOVED***,
-  `updated_at` datetime NOT NULL DEFAULT current_timestamp(***REMOVED***,
-  PRIMARY KEY (`id`***REMOVED***
-***REMOVED*** ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -116,16 +116,16 @@ DROP TABLE IF EXISTS `tokens`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tokens` (
-  `id` int(11***REMOVED*** NOT NULL AUTO_INCREMENT,
-  `user_id` int(11***REMOVED*** NOT NULL,
-  `name` varchar(255***REMOVED*** NOT NULL,
-  `email` varchar(255***REMOVED*** NOT NULL,
-  `token_hash` varbinary(255***REMOVED*** DEFAULT NULL,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp(***REMOVED***,
-  `updated_at` datetime NOT NULL DEFAULT current_timestamp(***REMOVED***,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `token_hash` varbinary(255) DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp(),
   `expiry` datetime NOT NULL,
-  PRIMARY KEY (`id`***REMOVED***
-***REMOVED*** ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -136,12 +136,12 @@ DROP TABLE IF EXISTS `transaction_statuses`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `transaction_statuses` (
-  `id` int(11***REMOVED*** NOT NULL AUTO_INCREMENT,
-  `name` varchar(255***REMOVED*** NOT NULL,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp(***REMOVED***,
-  `updated_at` datetime NOT NULL DEFAULT current_timestamp(***REMOVED***,
-  PRIMARY KEY (`id`***REMOVED***
-***REMOVED*** ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -152,22 +152,22 @@ DROP TABLE IF EXISTS `transactions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `transactions` (
-  `id` int(11***REMOVED*** NOT NULL AUTO_INCREMENT,
-  `amount` int(11***REMOVED*** NOT NULL,
-  `currency` varchar(255***REMOVED*** NOT NULL,
-  `last_four` varchar(255***REMOVED*** NOT NULL,
-  `bank_return_code` varchar(255***REMOVED*** NOT NULL,
-  `transaction_status_id` int(11***REMOVED*** NOT NULL,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp(***REMOVED***,
-  `updated_at` datetime NOT NULL DEFAULT current_timestamp(***REMOVED***,
-  `expiry_month` int(11***REMOVED*** NOT NULL DEFAULT 0,
-  `expiry_year` int(11***REMOVED*** NOT NULL DEFAULT 0,
-  `payment_indent` varchar(255***REMOVED*** NOT NULL DEFAULT '',
-  `payment_method` varchar(255***REMOVED*** NOT NULL DEFAULT '',
-  PRIMARY KEY (`id`***REMOVED***,
-  KEY `transactions_transaction_statuses_id_fk` (`transaction_status_id`***REMOVED***,
-  CONSTRAINT `transactions_transaction_statuses_id_fk` FOREIGN KEY (`transaction_status_id`***REMOVED*** REFERENCES `transaction_statuses` (`id`***REMOVED*** ON DELETE CASCADE ON UPDATE CASCADE
-***REMOVED*** ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `amount` int(11) NOT NULL,
+  `currency` varchar(255) NOT NULL,
+  `last_four` varchar(255) NOT NULL,
+  `bank_return_code` varchar(255) NOT NULL,
+  `transaction_status_id` int(11) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `expiry_month` int(11) NOT NULL DEFAULT 0,
+  `expiry_year` int(11) NOT NULL DEFAULT 0,
+  `payment_indent` varchar(255) NOT NULL DEFAULT '',
+  `payment_method` varchar(255) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`),
+  KEY `transactions_transaction_statuses_id_fk` (`transaction_status_id`),
+  CONSTRAINT `transactions_transaction_statuses_id_fk` FOREIGN KEY (`transaction_status_id`) REFERENCES `transaction_statuses` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -178,15 +178,15 @@ DROP TABLE IF EXISTS `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `users` (
-  `id` int(11***REMOVED*** NOT NULL AUTO_INCREMENT,
-  `first_name` varchar(255***REMOVED*** NOT NULL,
-  `last_name` varchar(255***REMOVED*** NOT NULL,
-  `email` varchar(255***REMOVED*** NOT NULL,
-  `password` varchar(60***REMOVED*** NOT NULL,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp(***REMOVED***,
-  `updated_at` datetime NOT NULL DEFAULT current_timestamp(***REMOVED***,
-  PRIMARY KEY (`id`***REMOVED***
-***REMOVED*** ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `first_name` varchar(255) NOT NULL,
+  `last_name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(60) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -197,18 +197,18 @@ DROP TABLE IF EXISTS `widgets`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `widgets` (
-  `id` int(11***REMOVED*** NOT NULL AUTO_INCREMENT,
-  `name` varchar(255***REMOVED*** NOT NULL DEFAULT '',
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL DEFAULT '',
   `description` text NOT NULL DEFAULT '',
-  `inventory_level` int(11***REMOVED*** NOT NULL,
-  `price` int(11***REMOVED*** NOT NULL,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp(***REMOVED***,
-  `updated_at` datetime NOT NULL DEFAULT current_timestamp(***REMOVED***,
-  `image` varchar(255***REMOVED*** NOT NULL DEFAULT '',
-  `is_recurring` tinyint(1***REMOVED*** NOT NULL DEFAULT 0,
-  `plan_id` varchar(255***REMOVED*** NOT NULL DEFAULT '',
-  PRIMARY KEY (`id`***REMOVED***
-***REMOVED*** ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `inventory_level` int(11) NOT NULL,
+  `price` int(11) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `image` varchar(255) NOT NULL DEFAULT '',
+  `is_recurring` tinyint(1) NOT NULL DEFAULT 0,
+  `plan_id` varchar(255) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

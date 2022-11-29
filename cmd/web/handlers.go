@@ -1,33 +1,33 @@
-***REMOVED***
+package main
 
-***REMOVED***
-***REMOVED***
-***REMOVED***
+import (
+	"fmt"
+	"net/http"
 	"strconv"
-***REMOVED***
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/plug-pathomgphong/dotnet-webapi/internal/cards"
 	"github.com/plug-pathomgphong/dotnet-webapi/internal/encyption"
-***REMOVED***
+	"github.com/plug-pathomgphong/dotnet-webapi/internal/models"
 	"github.com/plug-pathomgphong/dotnet-webapi/internal/urlsigner"
-***REMOVED***
+)
 
-func (app *application***REMOVED*** Home(w http.ResponseWriter, r *http.Request***REMOVED*** {
-	// stringMap := make(map[string]string***REMOVED***
+func (app *application) Home(w http.ResponseWriter, r *http.Request) {
+	// stringMap := make(map[string]string)
 	// stringMap["publishable_key"] = app.config.stripe.key
-	if err := app.renderTemplate(w, r, "home", &templateData{***REMOVED******REMOVED***; err != nil {
-		app.errorLog.Println(err***REMOVED***
-***REMOVED***
-***REMOVED***
+	if err := app.renderTemplate(w, r, "home", &templateData{}); err != nil {
+		app.errorLog.Println(err)
+	}
+}
 
-func (app *application***REMOVED*** VirtualTerminal(w http.ResponseWriter, r *http.Request***REMOVED*** {
-	// stringMap := make(map[string]string***REMOVED***
+func (app *application) VirtualTerminal(w http.ResponseWriter, r *http.Request) {
+	// stringMap := make(map[string]string)
 	// stringMap["publishable_key"] = app.config.stripe.key
-	if err := app.renderTemplate(w, r, "terminal", &templateData{***REMOVED******REMOVED***; err != nil {
-		app.errorLog.Println(err***REMOVED***
-***REMOVED***
-***REMOVED***
+	if err := app.renderTemplate(w, r, "terminal", &templateData{}); err != nil {
+		app.errorLog.Println(err)
+	}
+}
 
 type TransactionData struct {
 	FirstName       string
@@ -41,43 +41,43 @@ type TransactionData struct {
 	ExpiryMonth     int
 	ExpiryYear      int
 	BankReturnCode  string
-***REMOVED***
+}
 
 // GetTransactionData gets txn data from post and stripe
-func (app *application***REMOVED*** GetTransactionData(r *http.Request***REMOVED*** (TransactionData, error***REMOVED*** {
+func (app *application) GetTransactionData(r *http.Request) (TransactionData, error) {
 	var tnxData TransactionData
-	err := r.ParseForm(***REMOVED***
-***REMOVED***
-		app.errorLog.Println(err***REMOVED***
+	err := r.ParseForm()
+	if err != nil {
+		app.errorLog.Println(err)
 		return tnxData, err
-***REMOVED***
+	}
 
 	// read posted data
-	firstName := r.Form.Get("first_name"***REMOVED***
-	lastName := r.Form.Get("last_name"***REMOVED***
-	email := r.Form.Get("email"***REMOVED***
-	paymentIndent := r.Form.Get("payment_intent"***REMOVED***
-	paymentMethod := r.Form.Get("payment_method"***REMOVED***
-	paymentAmount := r.Form.Get("payment_amount"***REMOVED***
-	paymentCurrency := r.Form.Get("payment_currency"***REMOVED***
-	amount, _ := strconv.Atoi(paymentAmount***REMOVED***
+	firstName := r.Form.Get("first_name")
+	lastName := r.Form.Get("last_name")
+	email := r.Form.Get("email")
+	paymentIndent := r.Form.Get("payment_intent")
+	paymentMethod := r.Form.Get("payment_method")
+	paymentAmount := r.Form.Get("payment_amount")
+	paymentCurrency := r.Form.Get("payment_currency")
+	amount, _ := strconv.Atoi(paymentAmount)
 
 	card := cards.Card{
 		Secret: app.config.stripe.secret,
 		Key:    app.config.stripe.key,
-***REMOVED***
+	}
 
-	pi, err := card.RetrievePaymentIntent(paymentIndent***REMOVED***
-***REMOVED***
-		app.errorLog.Println(err***REMOVED***
+	pi, err := card.RetrievePaymentIntent(paymentIndent)
+	if err != nil {
+		app.errorLog.Println(err)
 		return tnxData, err
-***REMOVED***
+	}
 
-	pm, err := card.GetPaymentMethod(paymentMethod***REMOVED***
-***REMOVED***
-		app.errorLog.Println(err***REMOVED***
+	pm, err := card.GetPaymentMethod(paymentMethod)
+	if err != nil {
+		app.errorLog.Println(err)
 		return tnxData, err
-***REMOVED***
+	}
 
 	lastFour := pm.Card.Last4
 	expiryMonth := pm.Card.ExpMonth
@@ -92,37 +92,37 @@ func (app *application***REMOVED*** GetTransactionData(r *http.Request***REMOVED
 		PaymentAmount:   amount,
 		PaymentCurrency: paymentCurrency,
 		LastFour:        lastFour,
-		ExpiryMonth:     int(expiryMonth***REMOVED***,
-		ExpiryYear:      int(expireYear***REMOVED***,
+		ExpiryMonth:     int(expiryMonth),
+		ExpiryYear:      int(expireYear),
 		BankReturnCode:  pi.Charges.Data[0].ID,
-***REMOVED***
+	}
 
 	return txnData, nil
 
-***REMOVED***
+}
 
 // PaymentSucceeded displays the receipt page
-func (app *application***REMOVED*** PaymentSucceeded(w http.ResponseWriter, r *http.Request***REMOVED*** {
-	err := r.ParseForm(***REMOVED***
-***REMOVED***
-		app.errorLog.Println(err***REMOVED***
+func (app *application) PaymentSucceeded(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.errorLog.Println(err)
 		return
-***REMOVED***
+	}
 
 	// read posted data
-	widgetID, _ := strconv.Atoi(r.Form.Get("product_id"***REMOVED******REMOVED***
-	txnData, err := app.GetTransactionData(r***REMOVED***
-***REMOVED***
-		app.errorLog.Println(err***REMOVED***
+	widgetID, _ := strconv.Atoi(r.Form.Get("product_id"))
+	txnData, err := app.GetTransactionData(r)
+	if err != nil {
+		app.errorLog.Println(err)
 		return
-***REMOVED***
+	}
 
 	// create a new customer
-	customerID, err := app.SaveCustomer(txnData.FirstName, txnData.LastName, txnData.Email***REMOVED***
-***REMOVED***
-		app.errorLog.Println(err***REMOVED***
+	customerID, err := app.SaveCustomer(txnData.FirstName, txnData.LastName, txnData.Email)
+	if err != nil {
+		app.errorLog.Println(err)
 		return
-***REMOVED***
+	}
 
 	// create a new transaction
 	txn := models.Transaction{
@@ -135,13 +135,13 @@ func (app *application***REMOVED*** PaymentSucceeded(w http.ResponseWriter, r *h
 		PaymentIndent:       txnData.PaymentIndentID,
 		PaymentMethod:       txnData.PaymentMethodID,
 		TransactionStatusID: 2,
-***REMOVED***
+	}
 
-	txnID, err := app.SaveTransaction(txn***REMOVED***
-***REMOVED***
-		app.errorLog.Println(err***REMOVED***
+	txnID, err := app.SaveTransaction(txn)
+	if err != nil {
+		app.errorLog.Println(err)
 		return
-***REMOVED***
+	}
 
 	// create a new order
 	order := models.Order{
@@ -151,17 +151,17 @@ func (app *application***REMOVED*** PaymentSucceeded(w http.ResponseWriter, r *h
 		StatusID:      1,
 		Quantity:      1,
 		Amount:        txnData.PaymentAmount,
-		CreatedAt:     time.Now(***REMOVED***,
-		UpdatedAt:     time.Now(***REMOVED***,
-***REMOVED***
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
+	}
 
-	_, err = app.SaveOrder(order***REMOVED***
-***REMOVED***
-		app.errorLog.Println(err***REMOVED***
+	_, err = app.SaveOrder(order)
+	if err != nil {
+		app.errorLog.Println(err)
 		return
-***REMOVED***
+	}
 
-	// data := make(map[string]interface{***REMOVED******REMOVED***
+	// data := make(map[string]interface{})
 	// data["cardholder"] = cardHolder
 	// data["email"] = txnData.Email
 	// data["pi"] = txnData.PaymentIndentID
@@ -176,22 +176,22 @@ func (app *application***REMOVED*** PaymentSucceeded(w http.ResponseWriter, r *h
 	// data["last_name"] = txnData.LastName
 
 	// should write this data to session, and then redirect user to new page
-	app.Session.Put(r.Context(***REMOVED***, "receipt", txnData***REMOVED***
-	http.Redirect(w, r, "/receipt", http.StatusSeeOther***REMOVED***
+	app.Session.Put(r.Context(), "receipt", txnData)
+	http.Redirect(w, r, "/receipt", http.StatusSeeOther)
 
-	// if err := app.renderTemplate(w, r, "succeeded", &templateData{Data: data***REMOVED******REMOVED***; err != nil {
-	// 	app.errorLog.Println(err***REMOVED***
-	// ***REMOVED***
-***REMOVED***
+	// if err := app.renderTemplate(w, r, "succeeded", &templateData{Data: data}); err != nil {
+	// 	app.errorLog.Println(err)
+	// }
+}
 
 // VirtualTerminalPaymentSucceeded displays the receipt page
-func (app *application***REMOVED*** VirtualTerminalPaymentSucceeded(w http.ResponseWriter, r *http.Request***REMOVED*** {
+func (app *application) VirtualTerminalPaymentSucceeded(w http.ResponseWriter, r *http.Request) {
 
-	txnData, err := app.GetTransactionData(r***REMOVED***
-***REMOVED***
-		app.errorLog.Println(err***REMOVED***
+	txnData, err := app.GetTransactionData(r)
+	if err != nil {
+		app.errorLog.Println(err)
 		return
-***REMOVED***
+	}
 
 	// create a new transaction
 	txn := models.Transaction{
@@ -204,200 +204,200 @@ func (app *application***REMOVED*** VirtualTerminalPaymentSucceeded(w http.Respo
 		PaymentIndent:       txnData.PaymentIndentID,
 		PaymentMethod:       txnData.PaymentMethodID,
 		TransactionStatusID: 2,
-***REMOVED***
+	}
 
-	_, err = app.SaveTransaction(txn***REMOVED***
-***REMOVED***
-		app.errorLog.Println(err***REMOVED***
+	_, err = app.SaveTransaction(txn)
+	if err != nil {
+		app.errorLog.Println(err)
 		return
-***REMOVED***
+	}
 
-	app.Session.Put(r.Context(***REMOVED***, "receipt", txnData***REMOVED***
-	http.Redirect(w, r, "/virtual-terminal-receipt", http.StatusSeeOther***REMOVED***
+	app.Session.Put(r.Context(), "receipt", txnData)
+	http.Redirect(w, r, "/virtual-terminal-receipt", http.StatusSeeOther)
 
-***REMOVED***
+}
 
-func (app *application***REMOVED*** Receipt(w http.ResponseWriter, r *http.Request***REMOVED*** {
-	txn := app.Session.Get(r.Context(***REMOVED***, "receipt"***REMOVED***.(TransactionData***REMOVED***
-	data := make(map[string]interface{***REMOVED******REMOVED***
+func (app *application) Receipt(w http.ResponseWriter, r *http.Request) {
+	txn := app.Session.Get(r.Context(), "receipt").(TransactionData)
+	data := make(map[string]interface{})
 	data["txn"] = txn
 
-	app.Session.Remove(r.Context(***REMOVED***, "receipt"***REMOVED***
+	app.Session.Remove(r.Context(), "receipt")
 	if err := app.renderTemplate(w, r, "receipt", &templateData{
 		Data: data,
-***REMOVED******REMOVED***; err != nil {
-		app.errorLog.Println(err***REMOVED***
-***REMOVED***
-***REMOVED***
+	}); err != nil {
+		app.errorLog.Println(err)
+	}
+}
 
-func (app *application***REMOVED*** VirtualTerminalReceipt(w http.ResponseWriter, r *http.Request***REMOVED*** {
-	txn := app.Session.Get(r.Context(***REMOVED***, "receipt"***REMOVED***.(TransactionData***REMOVED***
-	data := make(map[string]interface{***REMOVED******REMOVED***
+func (app *application) VirtualTerminalReceipt(w http.ResponseWriter, r *http.Request) {
+	txn := app.Session.Get(r.Context(), "receipt").(TransactionData)
+	data := make(map[string]interface{})
 	data["txn"] = txn
 
-	app.Session.Remove(r.Context(***REMOVED***, "receipt"***REMOVED***
+	app.Session.Remove(r.Context(), "receipt")
 	if err := app.renderTemplate(w, r, "virtual-terminal-receipt", &templateData{
 		Data: data,
-***REMOVED******REMOVED***; err != nil {
-		app.errorLog.Println(err***REMOVED***
-***REMOVED***
-***REMOVED***
+	}); err != nil {
+		app.errorLog.Println(err)
+	}
+}
 
 // SaveCustomer saves a customer and retruns id
-func (app *application***REMOVED*** SaveCustomer(firstName, lastName, email string***REMOVED*** (int, error***REMOVED*** {
+func (app *application) SaveCustomer(firstName, lastName, email string) (int, error) {
 	customer := models.Customer{
 		FirstName: firstName,
 		LastName:  lastName,
 		Email:     email,
-***REMOVED***
+	}
 
-	id, err := app.DB.InsertCustomer(customer***REMOVED***
-***REMOVED***
+	id, err := app.DB.InsertCustomer(customer)
+	if err != nil {
 		return 0, err
-***REMOVED***
+	}
 	return id, nil
-***REMOVED***
+}
 
 // SaveTransaction saves a transaction and retruns id
-func (app *application***REMOVED*** SaveTransaction(txn models.Transaction***REMOVED*** (int, error***REMOVED*** {
-	id, err := app.DB.InsertTransaction(txn***REMOVED***
-***REMOVED***
+func (app *application) SaveTransaction(txn models.Transaction) (int, error) {
+	id, err := app.DB.InsertTransaction(txn)
+	if err != nil {
 		return 0, err
-***REMOVED***
+	}
 	return id, nil
-***REMOVED***
+}
 
 // SaveOrder saves a order and retruns id
-func (app *application***REMOVED*** SaveOrder(order models.Order***REMOVED*** (int, error***REMOVED*** {
-	id, err := app.DB.InsertOrder(order***REMOVED***
-***REMOVED***
+func (app *application) SaveOrder(order models.Order) (int, error) {
+	id, err := app.DB.InsertOrder(order)
+	if err != nil {
 		return 0, err
-***REMOVED***
+	}
 	return id, nil
-***REMOVED***
+}
 
-func (app *application***REMOVED*** ChangeOnce(w http.ResponseWriter, r *http.Request***REMOVED*** {
-	id := chi.URLParam(r, "id"***REMOVED***
-	widgetID, _ := strconv.Atoi(id***REMOVED***
+func (app *application) ChangeOnce(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	widgetID, _ := strconv.Atoi(id)
 
-	widget, err := app.DB.GetWidget(widgetID***REMOVED***
-***REMOVED***
-		app.errorLog.Panicln(err***REMOVED***
+	widget, err := app.DB.GetWidget(widgetID)
+	if err != nil {
+		app.errorLog.Panicln(err)
 		return
-***REMOVED***
+	}
 
-	data := make(map[string]interface{***REMOVED******REMOVED***
+	data := make(map[string]interface{})
 	data["widget"] = widget
-	if err := app.renderTemplate(w, r, "buy-once", &templateData{Data: data***REMOVED***, "stripe-js"***REMOVED***; err != nil {
-		app.errorLog.Println(err***REMOVED***
-***REMOVED***
-***REMOVED***
+	if err := app.renderTemplate(w, r, "buy-once", &templateData{Data: data}, "stripe-js"); err != nil {
+		app.errorLog.Println(err)
+	}
+}
 
-func (app *application***REMOVED*** BronzePlan(w http.ResponseWriter, r *http.Request***REMOVED*** {
-	widget, err := app.DB.GetWidget(2***REMOVED***
-***REMOVED***
-		app.errorLog.Panicln(err***REMOVED***
+func (app *application) BronzePlan(w http.ResponseWriter, r *http.Request) {
+	widget, err := app.DB.GetWidget(2)
+	if err != nil {
+		app.errorLog.Panicln(err)
 		return
-***REMOVED***
-	data := make(map[string]interface{***REMOVED******REMOVED***
+	}
+	data := make(map[string]interface{})
 	data["widget"] = widget
 
 	if err := app.renderTemplate(w, r, "bronze-plan", &templateData{
 		Data: data,
-***REMOVED******REMOVED***; err != nil {
-		app.errorLog.Println(err***REMOVED***
-***REMOVED***
-***REMOVED***
+	}); err != nil {
+		app.errorLog.Println(err)
+	}
+}
 
-func (app *application***REMOVED*** BronzePlanReceipt(w http.ResponseWriter, r *http.Request***REMOVED*** {
+func (app *application) BronzePlanReceipt(w http.ResponseWriter, r *http.Request) {
 
-	if err := app.renderTemplate(w, r, "receipt-plan", &templateData{***REMOVED******REMOVED***; err != nil {
-		app.errorLog.Println(err***REMOVED***
-***REMOVED***
-***REMOVED***
+	if err := app.renderTemplate(w, r, "receipt-plan", &templateData{}); err != nil {
+		app.errorLog.Println(err)
+	}
+}
 
-func (app *application***REMOVED*** LoginPage(w http.ResponseWriter, r *http.Request***REMOVED*** {
+func (app *application) LoginPage(w http.ResponseWriter, r *http.Request) {
 
-	if err := app.renderTemplate(w, r, "login", &templateData{***REMOVED******REMOVED***; err != nil {
-		app.errorLog.Println(err***REMOVED***
-***REMOVED***
-***REMOVED***
+	if err := app.renderTemplate(w, r, "login", &templateData{}); err != nil {
+		app.errorLog.Println(err)
+	}
+}
 
-func (app *application***REMOVED*** PostLoginPage(w http.ResponseWriter, r *http.Request***REMOVED*** {
-	app.Session.RenewToken(r.Context(***REMOVED******REMOVED***
+func (app *application) PostLoginPage(w http.ResponseWriter, r *http.Request) {
+	app.Session.RenewToken(r.Context())
 
-	err := r.ParseForm(***REMOVED***
-***REMOVED***
-		app.errorLog.Println(err***REMOVED***
+	err := r.ParseForm()
+	if err != nil {
+		app.errorLog.Println(err)
 		return
-***REMOVED***
-	email := r.Form.Get("email"***REMOVED***
-	password := r.Form.Get("password"***REMOVED***
+	}
+	email := r.Form.Get("email")
+	password := r.Form.Get("password")
 
-	id, err := app.DB.Authenticate(email, password***REMOVED***
-***REMOVED***
-		http.Redirect(w, r, "/login", http.StatusSeeOther***REMOVED***
+	id, err := app.DB.Authenticate(email, password)
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
-***REMOVED***
+	}
 
-	app.Session.Put(r.Context(***REMOVED***, "userID", id***REMOVED***
-	http.Redirect(w, r, "/", http.StatusSeeOther***REMOVED***
-***REMOVED***
+	app.Session.Put(r.Context(), "userID", id)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
 
-func (app *application***REMOVED*** Logout(w http.ResponseWriter, r *http.Request***REMOVED*** {
-	app.Session.Destroy(r.Context(***REMOVED******REMOVED***
-	app.Session.RenewToken(r.Context(***REMOVED******REMOVED***
+func (app *application) Logout(w http.ResponseWriter, r *http.Request) {
+	app.Session.Destroy(r.Context())
+	app.Session.RenewToken(r.Context())
 
-	http.Redirect(w, r, "/login", http.StatusSeeOther***REMOVED***
-***REMOVED***
+	http.Redirect(w, r, "/login", http.StatusSeeOther)
+}
 
-func (app *application***REMOVED*** ForgotPassword(w http.ResponseWriter, r *http.Request***REMOVED*** {
+func (app *application) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 
-	if err := app.renderTemplate(w, r, "forgot-password", &templateData{***REMOVED******REMOVED***; err != nil {
-		app.errorLog.Println(err***REMOVED***
-***REMOVED***
-***REMOVED***
+	if err := app.renderTemplate(w, r, "forgot-password", &templateData{}); err != nil {
+		app.errorLog.Println(err)
+	}
+}
 
-func (app *application***REMOVED*** ShowResetPassword(w http.ResponseWriter, r *http.Request***REMOVED*** {
-	email := r.URL.Query(***REMOVED***.Get("email"***REMOVED***
+func (app *application) ShowResetPassword(w http.ResponseWriter, r *http.Request) {
+	email := r.URL.Query().Get("email")
 	theURL := r.RequestURI
-	testURL := fmt.Sprintf("%s%s", app.config.frontend, theURL***REMOVED***
+	testURL := fmt.Sprintf("%s%s", app.config.frontend, theURL)
 
 	signer := urlsigner.Signer{
-		Secret: []byte(app.config.secretkey***REMOVED***,
-***REMOVED***
+		Secret: []byte(app.config.secretkey),
+	}
 
-	valid := signer.VerifyToken(testURL***REMOVED***
+	valid := signer.VerifyToken(testURL)
 
 	if !valid {
-		app.errorLog.Println("Invalid url - tamering detected"***REMOVED***
+		app.errorLog.Println("Invalid url - tamering detected")
 		return
-***REMOVED***
+	}
 
 	// make sure not expired
-	expired := signer.Expired(testURL, 60***REMOVED***
+	expired := signer.Expired(testURL, 60)
 	if expired {
-		app.errorLog.Println("Link expired"***REMOVED***
+		app.errorLog.Println("Link expired")
 		return
-***REMOVED***
+	}
 
 	encryptor := encyption.Encyption{
-		Key: []byte(app.config.secretkey***REMOVED***,
-***REMOVED***
+		Key: []byte(app.config.secretkey),
+	}
 
-	encryptedEmail, err := encryptor.Encrypt(email***REMOVED***
-***REMOVED***
-		app.errorLog.Println("Encryption failed"***REMOVED***
+	encryptedEmail, err := encryptor.Encrypt(email)
+	if err != nil {
+		app.errorLog.Println("Encryption failed")
 		return
-***REMOVED***
+	}
 
-	data := make(map[string]interface{***REMOVED******REMOVED***
+	data := make(map[string]interface{})
 	data["email"] = encryptedEmail
 
 	if err := app.renderTemplate(w, r, "reset-password", &templateData{
 		Data: data,
-***REMOVED******REMOVED***; err != nil {
-		app.errorLog.Println(err***REMOVED***
-***REMOVED***
+	}); err != nil {
+		app.errorLog.Println(err)
+	}
 
-***REMOVED***
+}

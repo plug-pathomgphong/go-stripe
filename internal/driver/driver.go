@@ -1,23 +1,23 @@
 package driver
 
-***REMOVED***
+import (
 	"database/sql"
-***REMOVED***
+	"fmt"
 
 	_ "github.com/go-sql-driver/mysql"
-***REMOVED***
+)
 
-func OpenDB(dsn string***REMOVED*** (*sql.DB, error***REMOVED*** {
-	db, err := sql.Open("mysql", dsn***REMOVED***
-***REMOVED***
+func OpenDB(dsn string) (*sql.DB, error) {
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
 		return nil, err
-***REMOVED***
+	}
 
-	err = db.Ping(***REMOVED***
-***REMOVED***
-		fmt.Println(err***REMOVED***
+	err = db.Ping()
+	if err != nil {
+		fmt.Println(err)
 		return nil, err
-***REMOVED***
+	}
 
 	return db, nil
-***REMOVED***
+}

@@ -1,47 +1,47 @@
 package urlsigner
 
-***REMOVED***
-***REMOVED***
+import (
+	"fmt"
 	"strings"
-***REMOVED***
+	"time"
 
 	goalone "github.com/bwmarrin/go-alone"
-***REMOVED***
+)
 
 type Signer struct {
 	Secret []byte
-***REMOVED***
+}
 
-func (s *Signer***REMOVED*** GenerateTokenFromString(data string***REMOVED*** string {
+func (s *Signer) GenerateTokenFromString(data string) string {
 	var urlToSign string
 
-	crypt := goalone.New(s.Secret, goalone.Timestamp***REMOVED***
-	if strings.Contains(data, "?"***REMOVED*** {
-		urlToSign = fmt.Sprintf("%s&hash=", data***REMOVED***
-***REMOVED*** else {
-		urlToSign = fmt.Sprintf("%s?hash=", data***REMOVED***
-***REMOVED***
+	crypt := goalone.New(s.Secret, goalone.Timestamp)
+	if strings.Contains(data, "?") {
+		urlToSign = fmt.Sprintf("%s&hash=", data)
+	} else {
+		urlToSign = fmt.Sprintf("%s?hash=", data)
+	}
 
-	tokenBypes := crypt.Sign([]byte(urlToSign***REMOVED******REMOVED***
-	token := string(tokenBypes***REMOVED***
+	tokenBypes := crypt.Sign([]byte(urlToSign))
+	token := string(tokenBypes)
 	return token
-***REMOVED***
+}
 
-func (s *Signer***REMOVED*** VerifyToken(token string***REMOVED*** bool {
-	crypt := goalone.New(s.Secret, goalone.Timestamp***REMOVED***
-	_, err := crypt.Unsign([]byte(token***REMOVED******REMOVED***
+func (s *Signer) VerifyToken(token string) bool {
+	crypt := goalone.New(s.Secret, goalone.Timestamp)
+	_, err := crypt.Unsign([]byte(token))
 
-***REMOVED***
-		fmt.Println(err***REMOVED***
+	if err != nil {
+		fmt.Println(err)
 		return false
-***REMOVED***
+	}
 
 	return true
-***REMOVED***
+}
 
-func (s *Signer***REMOVED*** Expired(token string, minutesUntilExpire int***REMOVED*** bool {
-	crypt := goalone.New(s.Secret, goalone.Timestamp***REMOVED***
-	ts := crypt.Parse([]byte(token***REMOVED******REMOVED***
+func (s *Signer) Expired(token string, minutesUntilExpire int) bool {
+	crypt := goalone.New(s.Secret, goalone.Timestamp)
+	ts := crypt.Parse([]byte(token))
 
-	return time.Since(ts.Timestamp***REMOVED*** > time.Duration(minutesUntilExpire***REMOVED****time.Minute
-***REMOVED***
+	return time.Since(ts.Timestamp) > time.Duration(minutesUntilExpire)*time.Minute
+}

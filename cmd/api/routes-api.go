@@ -1,42 +1,42 @@
-***REMOVED***
+package main
 
-***REMOVED***
-***REMOVED***
+import (
+	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
-***REMOVED***
+)
 
-func (app *application***REMOVED*** routes(***REMOVED*** http.Handler {
-	mux := chi.NewRouter(***REMOVED***
+func (app *application) routes() http.Handler {
+	mux := chi.NewRouter()
 
 	mux.Use(cors.Handler(cors.Options{
-		// AllowedOrigins:   []string{"https://foo.com"***REMOVED***, // Use this to allow specific origin hosts
-		AllowedOrigins: []string{"https://*", "http://*"***REMOVED***,
-		// AllowOriginFunc:  func(r *http.Request, origin string***REMOVED*** bool { return true ***REMOVED***,
-		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"***REMOVED***,
-		AllowedHeaders: []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"***REMOVED***,
-		// ExposedHeaders:   []string{"Link"***REMOVED***,
+		// AllowedOrigins:   []string{"https://foo.com"}, // Use this to allow specific origin hosts
+		AllowedOrigins: []string{"https://*", "http://*"},
+		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders: []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		// ExposedHeaders:   []string{"Link"},
 		AllowCredentials: false,
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
-***REMOVED******REMOVED******REMOVED***
+	}))
 
-	mux.Get("/api/", app.GetStartPage***REMOVED***
-	mux.Post("/api/payment-intent", app.GetPaymentIntent***REMOVED***
-	mux.Get("/api/widget/{id***REMOVED***", app.GetWidgetByID***REMOVED***
+	mux.Get("/api/", app.GetStartPage)
+	mux.Post("/api/payment-intent", app.GetPaymentIntent)
+	mux.Get("/api/widget/{id}", app.GetWidgetByID)
 
-	mux.Post("/api/create-customer-and-subscribe-to-plan", app.CreateCustomerAndSubscribeToPlan***REMOVED***
+	mux.Post("/api/create-customer-and-subscribe-to-plan", app.CreateCustomerAndSubscribeToPlan)
 
-	mux.Post("/api/authenticate", app.CreateAuthToken***REMOVED***
-	mux.Post("/api/is-authenticated", app.CheckAuthentication***REMOVED***
-	mux.Post("/api/forgot-password", app.SendPasswordResetEmail***REMOVED***
-	mux.Post("/api/reset-password", app.ResetPassword***REMOVED***
+	mux.Post("/api/authenticate", app.CreateAuthToken)
+	mux.Post("/api/is-authenticated", app.CheckAuthentication)
+	mux.Post("/api/forgot-password", app.SendPasswordResetEmail)
+	mux.Post("/api/reset-password", app.ResetPassword)
 
-	mux.Route("/api/admin", func(r chi.Router***REMOVED*** {
-		r.Use(app.Auth***REMOVED***
+	mux.Route("/api/admin", func(r chi.Router) {
+		r.Use(app.Auth)
 
-		r.Post("/virtual-terminal-succeeded", app.VirtualTerminalPaymentSucceeded***REMOVED***
-***REMOVED******REMOVED***
+		r.Post("/virtual-terminal-succeeded", app.VirtualTerminalPaymentSucceeded)
+	})
 
 	return mux
-***REMOVED***
+}

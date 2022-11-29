@@ -1,22 +1,22 @@
-***REMOVED***
+package main
 
-***REMOVED***
+import (
 	"encoding/json"
 	"errors"
-***REMOVED***
-***REMOVED***
+	"fmt"
+	"net/http"
 	"strconv"
 	"strings"
-***REMOVED***
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/plug-pathomgphong/dotnet-webapi/internal/cards"
 	"github.com/plug-pathomgphong/dotnet-webapi/internal/encyption"
-***REMOVED***
+	"github.com/plug-pathomgphong/dotnet-webapi/internal/models"
 	"github.com/plug-pathomgphong/dotnet-webapi/internal/urlsigner"
 	"github.com/stripe/stripe-go/v72"
 	"golang.org/x/crypto/bcrypt"
-***REMOVED***
+)
 
 type stripePayload struct {
 	Currency      string `json:"currency"`
@@ -31,152 +31,152 @@ type stripePayload struct {
 	ProductID     string `json:"product_id"`
 	FirstName     string `json:"first_name"`
 	LastName      string `json:"last_name"`
-***REMOVED***
+}
 
 type jsonResponse struct {
 	OK      bool   `json:"ok"`
 	Message string `json:"message,omitempty"`
 	Content string `json:"content,omitempty"`
 	ID      int    `json:"id,omitempty"`
-***REMOVED***
+}
 
-func (app *application***REMOVED*** GetStartPage(w http.ResponseWriter, r *http.Request***REMOVED*** {
-	myJsonString := `{"name":"hello world"***REMOVED***`
+func (app *application) GetStartPage(w http.ResponseWriter, r *http.Request) {
+	myJsonString := `{"name":"hello world"}`
 
-	out, err := json.MarshalIndent(myJsonString, "", "   "***REMOVED***
-***REMOVED***
-		app.errorLog.Println(err***REMOVED***
+	out, err := json.MarshalIndent(myJsonString, "", "   ")
+	if err != nil {
+		app.errorLog.Println(err)
 		return
-***REMOVED***
-	w.Header(***REMOVED***.Set("Content-Type", "application/json"***REMOVED***
-	w.Write(out***REMOVED***
-***REMOVED***
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(out)
+}
 
-func (app *application***REMOVED*** GetPaymentIntent(w http.ResponseWriter, r *http.Request***REMOVED*** {
+func (app *application) GetPaymentIntent(w http.ResponseWriter, r *http.Request) {
 	var payload stripePayload
 
-	err := json.NewDecoder(r.Body***REMOVED***.Decode(&payload***REMOVED***
-***REMOVED***
-		app.errorLog.Println(r.Method***REMOVED***
-		app.errorLog.Println(err***REMOVED***
+	err := json.NewDecoder(r.Body).Decode(&payload)
+	if err != nil {
+		app.errorLog.Println(r.Method)
+		app.errorLog.Println(err)
 		return
-***REMOVED***
+	}
 
-	amount, err := strconv.Atoi(payload.Amount***REMOVED***
-***REMOVED***
-		app.errorLog.Println(err***REMOVED***
+	amount, err := strconv.Atoi(payload.Amount)
+	if err != nil {
+		app.errorLog.Println(err)
 		return
-***REMOVED***
+	}
 
 	card := cards.Card{
 		Secret:   app.config.stripe.secret,
 		Key:      app.config.stripe.key,
 		Currency: payload.Currency,
-***REMOVED***
+	}
 
 	okay := true
 
-	pi, msg, err := card.Charge(payload.Currency, amount***REMOVED***
-***REMOVED***
+	pi, msg, err := card.Charge(payload.Currency, amount)
+	if err != nil {
 		okay = false
-***REMOVED***
+	}
 
 	if okay {
-		out, err := json.MarshalIndent(pi, "", "   "***REMOVED***
-	***REMOVED***
-			app.errorLog.Println(err***REMOVED***
+		out, err := json.MarshalIndent(pi, "", "   ")
+		if err != nil {
+			app.errorLog.Println(err)
 			return
-	***REMOVED***
+		}
 
-		w.Header(***REMOVED***.Set("Content-Type", "application/json"***REMOVED***
-		w.Write(out***REMOVED***
-***REMOVED*** else {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(out)
+	} else {
 		j := jsonResponse{
 			OK:      false,
 			Message: msg,
 			Content: "",
-	***REMOVED***
+		}
 
-		out, err := json.MarshalIndent(j, "", "   "***REMOVED***
-	***REMOVED***
-			app.errorLog.Panicln(err***REMOVED***
-	***REMOVED***
+		out, err := json.MarshalIndent(j, "", "   ")
+		if err != nil {
+			app.errorLog.Panicln(err)
+		}
 
-		w.Header(***REMOVED***.Set("Content-Type", "application/json"***REMOVED***
-		w.Write(out***REMOVED***
-***REMOVED***
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(out)
+	}
 
-***REMOVED***
+}
 
-func (app *application***REMOVED*** GetWidgetByID(w http.ResponseWriter, r *http.Request***REMOVED*** {
-	id := chi.URLParam(r, "id"***REMOVED***
-	widgetID, _ := strconv.Atoi(id***REMOVED***
+func (app *application) GetWidgetByID(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	widgetID, _ := strconv.Atoi(id)
 
-	widget, err := app.DB.GetWidget(widgetID***REMOVED***
-***REMOVED***
-		app.errorLog.Panicln(err***REMOVED***
+	widget, err := app.DB.GetWidget(widgetID)
+	if err != nil {
+		app.errorLog.Panicln(err)
 		return
-***REMOVED***
+	}
 
-	out, err := json.MarshalIndent(widget, "", "   "***REMOVED***
-***REMOVED***
-		app.errorLog.Panicln(err***REMOVED***
+	out, err := json.MarshalIndent(widget, "", "   ")
+	if err != nil {
+		app.errorLog.Panicln(err)
 		return
-***REMOVED***
+	}
 
-	w.Header(***REMOVED***.Set("Content-Type", "application/json"***REMOVED***
-	w.Write(out***REMOVED***
-***REMOVED***
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(out)
+}
 
-func (app *application***REMOVED*** CreateCustomerAndSubscribeToPlan(w http.ResponseWriter, r *http.Request***REMOVED*** {
+func (app *application) CreateCustomerAndSubscribeToPlan(w http.ResponseWriter, r *http.Request) {
 	var data stripePayload
-	err := json.NewDecoder(r.Body***REMOVED***.Decode(&data***REMOVED***
-***REMOVED***
-		app.errorLog.Panicln(err***REMOVED***
+	err := json.NewDecoder(r.Body).Decode(&data)
+	if err != nil {
+		app.errorLog.Panicln(err)
 		return
-***REMOVED***
+	}
 
-	app.infoLog.Println(data.Email, data.LastFour, data.PaymentMethod, data.Plan***REMOVED***
+	app.infoLog.Println(data.Email, data.LastFour, data.PaymentMethod, data.Plan)
 
 	card := cards.Card{
 		Secret:   app.config.stripe.secret,
 		Key:      app.config.stripe.key,
 		Currency: data.Currency,
-***REMOVED***
+	}
 
 	okey := true
 	var subscription *stripe.Subscription
 	txnMsg := "Transaction successful"
 
-	stripeCustomer, msg, err := card.CreateCustomer(data.PaymentMethod, data.Email***REMOVED***
-***REMOVED***
-		app.errorLog.Panicln(err***REMOVED***
+	stripeCustomer, msg, err := card.CreateCustomer(data.PaymentMethod, data.Email)
+	if err != nil {
+		app.errorLog.Panicln(err)
 		okey = false
 		txnMsg = msg
-***REMOVED***
+	}
 
 	if okey {
-		subscription, err = card.SubscribeToPlan(stripeCustomer, data.Plan, data.Email, data.LastFour, ""***REMOVED***
-	***REMOVED***
-			app.errorLog.Panicln(err***REMOVED***
+		subscription, err = card.SubscribeToPlan(stripeCustomer, data.Plan, data.Email, data.LastFour, "")
+		if err != nil {
+			app.errorLog.Panicln(err)
 			okey = false
 			txnMsg = "Error subscribing customer"
-	***REMOVED***
-		app.infoLog.Println("subscription id is", subscription.ID***REMOVED***
-***REMOVED***
+		}
+		app.infoLog.Println("subscription id is", subscription.ID)
+	}
 
 	if okey {
-		productID, _ := strconv.Atoi(data.ProductID***REMOVED***
-		customerID, err := app.SaveCustomer(data.FirstName, data.LastName, data.Email***REMOVED***
-	***REMOVED***
-			app.errorLog.Panicln(err***REMOVED***
+		productID, _ := strconv.Atoi(data.ProductID)
+		customerID, err := app.SaveCustomer(data.FirstName, data.LastName, data.Email)
+		if err != nil {
+			app.errorLog.Panicln(err)
 			return
-	***REMOVED***
+		}
 
 		// create a new txn
-		amount, _ := strconv.Atoi(data.Amount***REMOVED***
-		// expiryMonth, _ := strconv.Atoi(data.ExpiryMonth***REMOVED***
-		// expiryYear, _ := strconv.Atoi(data.ExpiryYear***REMOVED***
+		amount, _ := strconv.Atoi(data.Amount)
+		// expiryMonth, _ := strconv.Atoi(data.ExpiryMonth)
+		// expiryYear, _ := strconv.Atoi(data.ExpiryYear)
 		txn := models.Transaction{
 			Amount:              amount,
 			Currency:            "cad",
@@ -184,13 +184,13 @@ func (app *application***REMOVED*** CreateCustomerAndSubscribeToPlan(w http.Resp
 			ExpiryMonth:         data.ExpiryMonth,
 			ExpiryYear:          data.ExpiryYear,
 			TransactionStatusID: 2,
-	***REMOVED***
+		}
 
-		txnID, err := app.SaveTransaction(txn***REMOVED***
-	***REMOVED***
-			app.errorLog.Panicln(err***REMOVED***
+		txnID, err := app.SaveTransaction(txn)
+		if err != nil {
+			app.errorLog.Panicln(err)
 			return
-	***REMOVED***
+		}
 
 		// create order
 		order := models.Order{
@@ -200,168 +200,168 @@ func (app *application***REMOVED*** CreateCustomerAndSubscribeToPlan(w http.Resp
 			StatusID:      1,
 			Quantity:      1,
 			Amount:        amount,
-			CreatedAt:     time.Now(***REMOVED***,
-			UpdatedAt:     time.Now(***REMOVED***,
-	***REMOVED***
+			CreatedAt:     time.Now(),
+			UpdatedAt:     time.Now(),
+		}
 
-		_, err = app.SaveOrder(order***REMOVED***
-	***REMOVED***
-			app.errorLog.Panicln(err***REMOVED***
+		_, err = app.SaveOrder(order)
+		if err != nil {
+			app.errorLog.Panicln(err)
 			return
-	***REMOVED***
-***REMOVED***
+		}
+	}
 	// msg := ""
 
 	resp := jsonResponse{
 		OK:      okey,
 		Message: txnMsg,
-***REMOVED***
+	}
 
-	out, err := json.MarshalIndent(resp, "", "   "***REMOVED***
-***REMOVED***
-		app.errorLog.Panicln(err***REMOVED***
+	out, err := json.MarshalIndent(resp, "", "   ")
+	if err != nil {
+		app.errorLog.Panicln(err)
 		return
-***REMOVED***
+	}
 
-	w.Header(***REMOVED***.Set("Content-Type", "application/json"***REMOVED***
-	w.Write(out***REMOVED***
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(out)
 
-***REMOVED***
+}
 
 // SaveCustomer saves a customer and retruns id
-func (app *application***REMOVED*** SaveCustomer(firstName, lastName, email string***REMOVED*** (int, error***REMOVED*** {
+func (app *application) SaveCustomer(firstName, lastName, email string) (int, error) {
 	customer := models.Customer{
 		FirstName: firstName,
 		LastName:  lastName,
 		Email:     email,
-***REMOVED***
+	}
 
-	id, err := app.DB.InsertCustomer(customer***REMOVED***
-***REMOVED***
+	id, err := app.DB.InsertCustomer(customer)
+	if err != nil {
 		return 0, err
-***REMOVED***
+	}
 	return id, nil
-***REMOVED***
+}
 
 // SaveTransaction saves a transaction and retruns id
-func (app *application***REMOVED*** SaveTransaction(txn models.Transaction***REMOVED*** (int, error***REMOVED*** {
-	id, err := app.DB.InsertTransaction(txn***REMOVED***
-***REMOVED***
+func (app *application) SaveTransaction(txn models.Transaction) (int, error) {
+	id, err := app.DB.InsertTransaction(txn)
+	if err != nil {
 		return 0, err
-***REMOVED***
+	}
 	return id, nil
-***REMOVED***
+}
 
 // SaveOrder saves a order and retruns id
-func (app *application***REMOVED*** SaveOrder(order models.Order***REMOVED*** (int, error***REMOVED*** {
-	id, err := app.DB.InsertOrder(order***REMOVED***
-***REMOVED***
+func (app *application) SaveOrder(order models.Order) (int, error) {
+	id, err := app.DB.InsertOrder(order)
+	if err != nil {
 		return 0, err
-***REMOVED***
+	}
 	return id, nil
-***REMOVED***
+}
 
 // CreateAuthToken
-func (app *application***REMOVED*** CreateAuthToken(w http.ResponseWriter, r *http.Request***REMOVED*** {
+func (app *application) CreateAuthToken(w http.ResponseWriter, r *http.Request) {
 	var userInput struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
-***REMOVED***
-	err := app.readJSON(w, r, &userInput***REMOVED***
-***REMOVED***
-		app.badRequest(w, r, err***REMOVED***
+	}
+	err := app.readJSON(w, r, &userInput)
+	if err != nil {
+		app.badRequest(w, r, err)
 		return
-***REMOVED***
+	}
 
 	// get the user from the database by email; send error if invalid email
-	user, err := app.DB.GetUserByEmail(userInput.Email***REMOVED***
-***REMOVED***
-		app.invalidCredentials(w***REMOVED***
+	user, err := app.DB.GetUserByEmail(userInput.Email)
+	if err != nil {
+		app.invalidCredentials(w)
 		return
-***REMOVED***
+	}
 
 	// validate the password;send error if invalid password
-	validPassword, err := app.passwordMatches(user.Password, userInput.Password***REMOVED***
-***REMOVED***
-		app.invalidCredentials(w***REMOVED***
+	validPassword, err := app.passwordMatches(user.Password, userInput.Password)
+	if err != nil {
+		app.invalidCredentials(w)
 		return
-***REMOVED***
+	}
 
 	if !validPassword {
-		app.invalidCredentials(w***REMOVED***
+		app.invalidCredentials(w)
 		return
-***REMOVED***
+	}
 
 	// generate the token
-	token, err := models.GenerateToken(user.ID, 24*time.Hour, models.ScopeAuthentication***REMOVED***
-***REMOVED***
-		app.badRequest(w, r, err***REMOVED***
+	token, err := models.GenerateToken(user.ID, 24*time.Hour, models.ScopeAuthentication)
+	if err != nil {
+		app.badRequest(w, r, err)
 		return
-***REMOVED***
+	}
 
 	// save to database
-	err = app.DB.InsertToken(token, user***REMOVED***
-***REMOVED***
-		app.badRequest(w, r, err***REMOVED***
+	err = app.DB.InsertToken(token, user)
+	if err != nil {
+		app.badRequest(w, r, err)
 		return
-***REMOVED***
+	}
 
 	// send respone
 	var payload struct {
 		Error   bool          `json:"error"`
 		Message string        `json:"message"`
 		Token   *models.Token `json:"authentication_token"`
-***REMOVED***
+	}
 
 	payload.Error = false
-	payload.Message = fmt.Sprintf("token for %s created", userInput.Email***REMOVED***
+	payload.Message = fmt.Sprintf("token for %s created", userInput.Email)
 	payload.Token = token
 
-	_ = app.writeJSON(w, http.StatusOK, payload***REMOVED***
-***REMOVED***
+	_ = app.writeJSON(w, http.StatusOK, payload)
+}
 
-func (app *application***REMOVED*** authenticateToken(r *http.Request***REMOVED*** (*models.User, error***REMOVED*** {
+func (app *application) authenticateToken(r *http.Request) (*models.User, error) {
 	var u models.User
-	// fmt.Println("Authorization"***REMOVED***
-	authenticationHeader := r.Header.Get("Authorization"***REMOVED***
+	// fmt.Println("Authorization")
+	authenticationHeader := r.Header.Get("Authorization")
 	if authenticationHeader == "" {
-		return nil, errors.New("no authentication header received"***REMOVED***
-***REMOVED***
-	// fmt.Println("headerParts", authenticationHeader***REMOVED***
-	headerParts := strings.Split(authenticationHeader, " "***REMOVED***
-	fmt.Println("headerParts", headerParts, headerParts[0]***REMOVED***
-	if len(headerParts***REMOVED*** != 2 || headerParts[0] != "Bearer" {
-		return nil, errors.New("no authentication header received"***REMOVED***
-***REMOVED***
-	// fmt.Println("token"***REMOVED***
+		return nil, errors.New("no authentication header received")
+	}
+	// fmt.Println("headerParts", authenticationHeader)
+	headerParts := strings.Split(authenticationHeader, " ")
+	fmt.Println("headerParts", headerParts, headerParts[0])
+	if len(headerParts) != 2 || headerParts[0] != "Bearer" {
+		return nil, errors.New("no authentication header received")
+	}
+	// fmt.Println("token")
 	token := headerParts[1]
-	if len(token***REMOVED*** != 26 {
-		return nil, errors.New("authentication token wrong size"***REMOVED***
-***REMOVED***
+	if len(token) != 26 {
+		return nil, errors.New("authentication token wrong size")
+	}
 
 	return &u, nil
-***REMOVED***
+}
 
-func (app *application***REMOVED*** CheckAuthentication(w http.ResponseWriter, r *http.Request***REMOVED*** {
+func (app *application) CheckAuthentication(w http.ResponseWriter, r *http.Request) {
 	// validate the token, and get associated user
-	// fmt.Println("authenticateToken ----------"***REMOVED***
-	user, err := app.authenticateToken(r***REMOVED***
-***REMOVED***
-		app.invalidCredentials(w***REMOVED***
+	// fmt.Println("authenticateToken ----------")
+	user, err := app.authenticateToken(r)
+	if err != nil {
+		app.invalidCredentials(w)
 		return
-***REMOVED***
+	}
 
 	// valid user
 	var payload struct {
 		Error   bool   `json:"error"`
 		Message string `json:"message"`
-***REMOVED***
+	}
 	payload.Error = false
-	payload.Message = fmt.Sprintf("authenticated user %s", user.Email***REMOVED***
-	app.writeJSON(w, http.StatusOK, payload***REMOVED***
-***REMOVED***
+	payload.Message = fmt.Sprintf("authenticated user %s", user.Email)
+	app.writeJSON(w, http.StatusOK, payload)
+}
 
-func (app *application***REMOVED*** VirtualTerminalPaymentSucceeded(w http.ResponseWriter, r *http.Request***REMOVED*** {
+func (app *application) VirtualTerminalPaymentSucceeded(w http.ResponseWriter, r *http.Request) {
 	var txnData struct {
 		PaymentAmount   int    `json:"amount"`
 		PaymentCurrency string `json:"currency"`
@@ -374,35 +374,35 @@ func (app *application***REMOVED*** VirtualTerminalPaymentSucceeded(w http.Respo
 		ExpiryMonth     int    `json:"expiry_month"`
 		ExpiryYear      int    `json:"expiry_year"`
 		LastFour        string `json:"last_four"`
-***REMOVED***
-	// fmt.Println("readJSON process"***REMOVED***
-	err := app.readJSON(w, r, &txnData***REMOVED***
-***REMOVED***
-		app.badRequest(w, r, err***REMOVED***
+	}
+	// fmt.Println("readJSON process")
+	err := app.readJSON(w, r, &txnData)
+	if err != nil {
+		app.badRequest(w, r, err)
 		return
-***REMOVED***
+	}
 
 	card := cards.Card{
 		Secret: app.config.stripe.secret,
 		Key:    app.config.stripe.key,
-***REMOVED***
-	// fmt.Println("pi process"***REMOVED***
-	pi, err := card.RetrievePaymentIntent(txnData.PaymentIntent***REMOVED***
-***REMOVED***
-		app.badRequest(w, r, err***REMOVED***
+	}
+	// fmt.Println("pi process")
+	pi, err := card.RetrievePaymentIntent(txnData.PaymentIntent)
+	if err != nil {
+		app.badRequest(w, r, err)
 		return
-***REMOVED***
+	}
 
-	// fmt.Println("pm process"***REMOVED***
-	pm, err := card.GetPaymentMethod(txnData.PaymentMethod***REMOVED***
-***REMOVED***
-		app.badRequest(w, r, err***REMOVED***
+	// fmt.Println("pm process")
+	pm, err := card.GetPaymentMethod(txnData.PaymentMethod)
+	if err != nil {
+		app.badRequest(w, r, err)
 		return
-***REMOVED***
+	}
 
 	txnData.LastFour = pm.Card.Last4
-	txnData.ExpiryMonth = int(pm.Card.ExpMonth***REMOVED***
-	txnData.ExpiryYear = int(pm.Card.ExpYear***REMOVED***
+	txnData.ExpiryMonth = int(pm.Card.ExpMonth)
+	txnData.ExpiryYear = int(pm.Card.ExpYear)
 
 	txn := models.Transaction{
 		Amount:              txnData.PaymentAmount,
@@ -414,126 +414,126 @@ func (app *application***REMOVED*** VirtualTerminalPaymentSucceeded(w http.Respo
 		PaymentMethod:       txnData.PaymentMethod,
 		BankReturnCode:      pi.Charges.Data[0].ID,
 		TransactionStatusID: 2,
-***REMOVED***
+	}
 
-	// fmt.Println("SaveTransaction process"***REMOVED***
-	_, err = app.SaveTransaction(txn***REMOVED***
-***REMOVED***
-		app.badRequest(w, r, err***REMOVED***
+	// fmt.Println("SaveTransaction process")
+	_, err = app.SaveTransaction(txn)
+	if err != nil {
+		app.badRequest(w, r, err)
 		return
-***REMOVED***
+	}
 
-	app.writeJSON(w, http.StatusOK, txn***REMOVED***
-***REMOVED***
+	app.writeJSON(w, http.StatusOK, txn)
+}
 
-func (app *application***REMOVED*** SendPasswordResetEmail(w http.ResponseWriter, r *http.Request***REMOVED*** {
+func (app *application) SendPasswordResetEmail(w http.ResponseWriter, r *http.Request) {
 	var payload struct {
 		Email string `json:"email"`
-***REMOVED***
+	}
 
-	fmt.Println("email read json"***REMOVED***
-	err := app.readJSON(w, r, &payload***REMOVED***
-***REMOVED***
-		app.badRequest(w, r, err***REMOVED***
+	fmt.Println("email read json")
+	err := app.readJSON(w, r, &payload)
+	if err != nil {
+		app.badRequest(w, r, err)
 		return
-***REMOVED***
+	}
 
 	// verify that email exists
-	_, err = app.DB.GetUserByEmail(payload.Email***REMOVED***
-***REMOVED***
+	_, err = app.DB.GetUserByEmail(payload.Email)
+	if err != nil {
 		var resp struct {
 			Error   bool   `json:"error"`
 			Message string `json:"message"`
-	***REMOVED***
+		}
 		resp.Error = true
 		resp.Message = "No matching email found on our system"
-		app.writeJSON(w, http.StatusCreated, resp***REMOVED***
+		app.writeJSON(w, http.StatusCreated, resp)
 		return
-***REMOVED***
+	}
 
-	link := fmt.Sprintf("%s/reset-password?email=%s", app.config.frontend, payload.Email***REMOVED***
+	link := fmt.Sprintf("%s/reset-password?email=%s", app.config.frontend, payload.Email)
 
 	sign := urlsigner.Signer{
-		Secret: []byte(app.config.secretkey***REMOVED***,
-***REMOVED***
+		Secret: []byte(app.config.secretkey),
+	}
 
-	signedLink := sign.GenerateTokenFromString(link***REMOVED***
+	signedLink := sign.GenerateTokenFromString(link)
 
 	var data struct {
 		Link string
-***REMOVED***
+	}
 
 	data.Link = signedLink
 
-	fmt.Println("send email"***REMOVED***
+	fmt.Println("send email")
 	// send email
-	err = app.SendMail("info@widgets.com", payload.Email, "Password Reset Request", "password-reset", data***REMOVED***
-***REMOVED***
-		app.errorLog.Println(err***REMOVED***
-		app.badRequest(w, r, err***REMOVED***
+	err = app.SendMail("info@widgets.com", payload.Email, "Password Reset Request", "password-reset", data)
+	if err != nil {
+		app.errorLog.Println(err)
+		app.badRequest(w, r, err)
 		return
-***REMOVED***
+	}
 
 	var resp struct {
 		Error   bool   `json:"error"`
 		Message string `json:"message"`
-***REMOVED***
+	}
 
 	resp.Error = false
 
-	app.writeJSON(w, http.StatusCreated, resp***REMOVED***
-***REMOVED***
+	app.writeJSON(w, http.StatusCreated, resp)
+}
 
-func (app *application***REMOVED*** ResetPassword(w http.ResponseWriter, r *http.Request***REMOVED*** {
+func (app *application) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	var payload struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
-***REMOVED***
+	}
 
-	err := app.readJSON(w, r, &payload***REMOVED***
-***REMOVED***
-		app.badRequest(w, r, err***REMOVED***
+	err := app.readJSON(w, r, &payload)
+	if err != nil {
+		app.badRequest(w, r, err)
 		return
-***REMOVED***
-	fmt.Println("payload:", payload***REMOVED***
+	}
+	fmt.Println("payload:", payload)
 
 	encryptor := encyption.Encyption{
-		Key: []byte(app.config.secretkey***REMOVED***,
-***REMOVED***
+		Key: []byte(app.config.secretkey),
+	}
 
-	realEmail, err := encryptor.Decrypt(payload.Email***REMOVED***
-***REMOVED***
-		app.badRequest(w, r, err***REMOVED***
+	realEmail, err := encryptor.Decrypt(payload.Email)
+	if err != nil {
+		app.badRequest(w, r, err)
 		return
-***REMOVED***
+	}
 
-	user, err := app.DB.GetUserByEmail(realEmail***REMOVED***
-***REMOVED***
-		app.badRequest(w, r, err***REMOVED***
+	user, err := app.DB.GetUserByEmail(realEmail)
+	if err != nil {
+		app.badRequest(w, r, err)
 		return
-***REMOVED***
+	}
 
-	fmt.Println("GenerateFromPassword:"***REMOVED***
-	newHash, err := bcrypt.GenerateFromPassword([]byte(payload.Password***REMOVED***, 12***REMOVED***
-***REMOVED***
-		app.badRequest(w, r, err***REMOVED***
+	fmt.Println("GenerateFromPassword:")
+	newHash, err := bcrypt.GenerateFromPassword([]byte(payload.Password), 12)
+	if err != nil {
+		app.badRequest(w, r, err)
 		return
-***REMOVED***
+	}
 
-	fmt.Println("UpdatePasswordForUser:", user, string(newHash***REMOVED******REMOVED***
-	err = app.DB.UpdatePasswordForUser(user, string(newHash***REMOVED******REMOVED***
-***REMOVED***
-		app.badRequest(w, r, err***REMOVED***
+	fmt.Println("UpdatePasswordForUser:", user, string(newHash))
+	err = app.DB.UpdatePasswordForUser(user, string(newHash))
+	if err != nil {
+		app.badRequest(w, r, err)
 		return
-***REMOVED***
+	}
 
 	var resp struct {
 		Error   bool   `json:"error"`
 		Message string `json:"message"`
-***REMOVED***
+	}
 
 	resp.Error = false
 	resp.Message = "password changed"
 
-	app.writeJSON(w, http.StatusCreated, resp***REMOVED***
-***REMOVED***
+	app.writeJSON(w, http.StatusCreated, resp)
+}

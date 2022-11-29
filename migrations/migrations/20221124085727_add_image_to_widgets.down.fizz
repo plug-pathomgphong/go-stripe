@@ -1,1 +1,1 @@
-drop_column("widgets", "image"***REMOVED***
+drop_column("widgets", "image")

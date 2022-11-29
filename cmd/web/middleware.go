@@ -1,17 +1,17 @@
-***REMOVED***
+package main
 
 import "net/http"
 
-func SessionLoad(next http.Handler***REMOVED*** http.Handler {
-	return session.LoadAndSave(next***REMOVED***
-***REMOVED***
+func SessionLoad(next http.Handler) http.Handler {
+	return session.LoadAndSave(next)
+}
 
-func (app *application***REMOVED*** Auth(next http.Handler***REMOVED*** http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request***REMOVED*** {
-		if !app.Session.Exists(r.Context(***REMOVED***, "userID"***REMOVED*** {
-			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect***REMOVED***
+func (app *application) Auth(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !app.Session.Exists(r.Context(), "userID") {
+			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
 			return
-	***REMOVED***
-		next.ServeHTTP(w, r***REMOVED***
-***REMOVED******REMOVED***
-***REMOVED***
+		}
+		next.ServeHTTP(w, r)
+	})
+}

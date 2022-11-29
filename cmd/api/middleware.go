@@ -1,14 +1,14 @@
-***REMOVED***
+package main
 
 import "net/http"
 
-func (app *application***REMOVED*** Auth(next http.Handler***REMOVED*** http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request***REMOVED*** {
-		_, err := app.authenticateToken(r***REMOVED***
-	***REMOVED***
-			app.invalidCredentials(w***REMOVED***
+func (app *application) Auth(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, err := app.authenticateToken(r)
+		if err != nil {
+			app.invalidCredentials(w)
 			return
-	***REMOVED***
-		next.ServeHTTP(w, r***REMOVED***
-***REMOVED******REMOVED***
-***REMOVED***
+		}
+		next.ServeHTTP(w, r)
+	})
+}

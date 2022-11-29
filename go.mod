@@ -10,16 +10,16 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/joho/godotenv v1.4.0
 	github.com/stripe/stripe-go/v72 v72.122.0
-***REMOVED***
+)
 
 require (
 	github.com/bwmarrin/go-alone v0.0.0-20190806015146-742bb55d1631 // indirect
 	github.com/toorop/go-dkim v0.0.0-20201103131630-e1cd1a0a5208 // indirect
 	github.com/xhit/go-simple-mail/v2 v2.13.0 // indirect
 	golang.org/x/sys v0.2.0 // indirect
-***REMOVED***
+)
 
 require (
 	github.com/stretchr/testify v1.7.0 // indirect
 	golang.org/x/crypto v0.3.0
-***REMOVED***
+)

@@ -1,56 +1,56 @@
 package encyption
 
-***REMOVED***
+import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
-***REMOVED***
+	"fmt"
 	"io"
-***REMOVED***
+)
 
 type Encyption struct {
 	Key []byte
-***REMOVED***
+}
 
-func (e *Encyption***REMOVED*** Encrypt(text string***REMOVED*** (string, error***REMOVED*** {
-	plaintent := []byte(text***REMOVED***
+func (e *Encyption) Encrypt(text string) (string, error) {
+	plaintent := []byte(text)
 
-	block, err := aes.NewCipher(e.Key***REMOVED***
-***REMOVED***
+	block, err := aes.NewCipher(e.Key)
+	if err != nil {
 		return "", err
-***REMOVED***
+	}
 
-	cipherText := make([]byte, aes.BlockSize+len(plaintent***REMOVED******REMOVED***
+	cipherText := make([]byte, aes.BlockSize+len(plaintent))
 	iv := cipherText[:aes.BlockSize]
-	if _, err := io.ReadFull(rand.Reader, iv***REMOVED***; err != nil {
+	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
 		return "", err
-***REMOVED***
+	}
 
-	stream := cipher.NewCFBEncrypter(block, iv***REMOVED***
-	stream.XORKeyStream(cipherText[aes.BlockSize:], plaintent***REMOVED***
+	stream := cipher.NewCFBEncrypter(block, iv)
+	stream.XORKeyStream(cipherText[aes.BlockSize:], plaintent)
 
-	return base64.URLEncoding.EncodeToString(cipherText***REMOVED***, nil
+	return base64.URLEncoding.EncodeToString(cipherText), nil
 
-***REMOVED***
+}
 
-func (e *Encyption***REMOVED*** Decrypt(crytoText string***REMOVED*** (string, error***REMOVED*** {
-	cipherText, _ := base64.URLEncoding.DecodeString(crytoText***REMOVED***
+func (e *Encyption) Decrypt(crytoText string) (string, error) {
+	cipherText, _ := base64.URLEncoding.DecodeString(crytoText)
 
-	block, err := aes.NewCipher(e.Key***REMOVED***
-***REMOVED***
+	block, err := aes.NewCipher(e.Key)
+	if err != nil {
 		return "", err
-***REMOVED***
+	}
 
-	if len(cipherText***REMOVED*** < aes.BlockSize {
+	if len(cipherText) < aes.BlockSize {
 		return "", nil
-***REMOVED***
+	}
 
 	iv := cipherText[:aes.BlockSize]
 	cipherText = cipherText[aes.BlockSize:]
 
-	stream := cipher.NewCFBDecrypter(block, iv***REMOVED***
-	stream.XORKeyStream(cipherText, cipherText***REMOVED***
+	stream := cipher.NewCFBDecrypter(block, iv)
+	stream.XORKeyStream(cipherText, cipherText)
 
-	return fmt.Sprintf("%s", cipherText***REMOVED***, nil
-***REMOVED***
+	return fmt.Sprintf("%s", cipherText), nil
+}

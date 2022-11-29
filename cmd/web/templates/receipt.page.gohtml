@@ -1,21 +1,21 @@
-{{template "base" .***REMOVED******REMOVED***
+{{template "base" .}}
 
-{{define "title"***REMOVED******REMOVED***
+{{define "title"}}
     Payment Secceeded!
-{{end***REMOVED******REMOVED***
+{{end}}
 
-{{define "content"***REMOVED******REMOVED***
+{{define "content"}}
     <h2 class="mt-5">Payment Secceeded</h2>
     <hr>
-    {{$txn := index .Data "txn"***REMOVED******REMOVED***
-    <p>Payment Indent: {{$txn.PaymentIndentID***REMOVED******REMOVED***</p>
-    <p>Customer Name: {{$txn.FirstName***REMOVED******REMOVED*** {{$txn.LastName***REMOVED******REMOVED***</p>
-    <p>Email: {{$txn.Email***REMOVED******REMOVED***</p>
-    <p>Payment Method: {{$txn.PaymentMethodID***REMOVED******REMOVED***</p>
-    <p>Payment Amount: {{$txn.PaymentAmount***REMOVED******REMOVED***</p>
-    <p>Currency: {{$txn.PaymentCurrency***REMOVED******REMOVED***</p>
-    <p>Last Four: {{$txn.LastFour***REMOVED******REMOVED***</p>
-    <p>Bank Return Code: {{$txn.BankReturnCode***REMOVED******REMOVED***</p>
-    <p>Expire Date: {{$txn.ExpiryMonth***REMOVED******REMOVED***/{{$txn.ExpiryYear***REMOVED******REMOVED***</p>
+    {{$txn := index .Data "txn"}}
+    <p>Payment Indent: {{$txn.PaymentIndentID}}</p>
+    <p>Customer Name: {{$txn.FirstName}} {{$txn.LastName}}</p>
+    <p>Email: {{$txn.Email}}</p>
+    <p>Payment Method: {{$txn.PaymentMethodID}}</p>
+    <p>Payment Amount: {{$txn.PaymentAmount}}</p>
+    <p>Currency: {{$txn.PaymentCurrency}}</p>
+    <p>Last Four: {{$txn.LastFour}}</p>
+    <p>Bank Return Code: {{$txn.BankReturnCode}}</p>
+    <p>Expire Date: {{$txn.ExpiryMonth}}/{{$txn.ExpiryYear}}</p>
 
-{{end***REMOVED******REMOVED***
+{{end}}

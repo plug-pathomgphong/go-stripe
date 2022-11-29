@@ -1,2 +1,2 @@
-drop_column("transactions", "expiry_month"***REMOVED***
-drop_column("transactions", "expiry_year"***REMOVED***
+drop_column("transactions", "expiry_month")
+drop_column("transactions", "expiry_year")

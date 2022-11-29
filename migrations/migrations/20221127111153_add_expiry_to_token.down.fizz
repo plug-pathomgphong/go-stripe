@@ -1,1 +1,1 @@
-drop_column("tokens", "expiry"***REMOVED***
+drop_column("tokens", "expiry")

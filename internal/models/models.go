@@ -1,31 +1,31 @@
 package models
 
-***REMOVED***
+import (
 	"context"
 	"database/sql"
 	"errors"
 	"strings"
-***REMOVED***
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
-***REMOVED***
+)
 
 // DBModel is the type for database connection values
 type DBModel struct {
 	DB *sql.DB
-***REMOVED***
+}
 
 // Modelis the wrapper for all models
 type Models struct {
 	DB DBModel
-***REMOVED***
+}
 
 // NewModels returns a model type with database connect pool
-func NewModels(db *sql.DB***REMOVED*** Models {
+func NewModels(db *sql.DB) Models {
 	return Models{
-		DB: DBModel{DB: db***REMOVED***,
-***REMOVED***
-***REMOVED***
+		DB: DBModel{DB: db},
+	}
+}
 
 // Widget is the type for all widgets
 type Widget struct {
@@ -39,7 +39,7 @@ type Widget struct {
 	PlanID         string    `json:"plan_id"`
 	CreatedAt      time.Time `json:"-"`
 	UpdatedAt      time.Time `json:"-"`
-***REMOVED***
+}
 
 // Order is the type for all order
 type Order struct {
@@ -52,7 +52,7 @@ type Order struct {
 	Amount        int       `json:"amount"`
 	CreatedAt     time.Time `json:"-"`
 	UpdatedAt     time.Time `json:"-"`
-***REMOVED***
+}
 
 // Status is the type for order statuses
 type Status struct {
@@ -60,7 +60,7 @@ type Status struct {
 	Name      string    `json:"name"`
 	CreatedAt time.Time `json:"-"`
 	UpdatedAt time.Time `json:"-"`
-***REMOVED***
+}
 
 // TransactionStatus is the type for Transaction statuses
 type TransactionStatus struct {
@@ -68,7 +68,7 @@ type TransactionStatus struct {
 	Name      string    `json:"name"`
 	CreatedAt time.Time `json:"-"`
 	UpdatedAt time.Time `json:"-"`
-***REMOVED***
+}
 
 // Transaction is the type for Transactions
 type Transaction struct {
@@ -84,7 +84,7 @@ type Transaction struct {
 	TransactionStatusID int       `json:"transaction_status_id"`
 	CreatedAt           time.Time `json:"-"`
 	UpdatedAt           time.Time `json:"-"`
-***REMOVED***
+}
 
 // User is the type for users
 type User struct {
@@ -95,7 +95,7 @@ type User struct {
 	Password  string    `json:"password"`
 	CreatedAt time.Time `json:"-"`
 	UpdatedAt time.Time `json:"-"`
-***REMOVED***
+}
 
 // Customer is the type for customers
 type Customer struct {
@@ -105,22 +105,22 @@ type Customer struct {
 	Email     string    `json:"email"`
 	CreatedAt time.Time `json:"-"`
 	UpdatedAt time.Time `json:"-"`
-***REMOVED***
+}
 
-func (m *DBModel***REMOVED*** GetWidget(id int***REMOVED*** (Widget, error***REMOVED*** {
-	ctx, cancel := context.WithTimeout(context.Background(***REMOVED***, 3*time.Second***REMOVED***
-	defer cancel(***REMOVED***
+func (m *DBModel) GetWidget(id int) (Widget, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
 
 	var widget Widget
 
 	row := m.DB.QueryRowContext(ctx, `
 		select 
-			id, name, description, inventory_level, price, coalesce(image, ''***REMOVED***,
+			id, name, description, inventory_level, price, coalesce(image, ''),
 			is_recurring, plan_id,
 			created_at, updated_at
 		from
 			widgets
-		where id = ?`, id***REMOVED***
+		where id = ?`, id)
 	err := row.Scan(
 		&widget.ID,
 		&widget.Name,
@@ -132,23 +132,23 @@ func (m *DBModel***REMOVED*** GetWidget(id int***REMOVED*** (Widget, error***REM
 		&widget.PlanID,
 		&widget.CreatedAt,
 		&widget.UpdatedAt,
-	***REMOVED***
-***REMOVED***
+	)
+	if err != nil {
 		return widget, err
-***REMOVED***
+	}
 	return widget, nil
-***REMOVED***
+}
 
 // InsertTransaction inserts a new txn, and return its id
-func (m *DBModel***REMOVED*** InsertTransaction(txn Transaction***REMOVED*** (int, error***REMOVED*** {
-	ctx, close := context.WithTimeout(context.Background(***REMOVED***, 3*time.Second***REMOVED***
-	defer close(***REMOVED***
+func (m *DBModel) InsertTransaction(txn Transaction) (int, error) {
+	ctx, close := context.WithTimeout(context.Background(), 3*time.Second)
+	defer close()
 
 	stmt := `insert into transactions 
 		(amount, currency, last_four, bank_return_code, expiry_month, expiry_year,
 		payment_indent, payment_method,
-		transaction_status_id, created_at, updated_at***REMOVED*** 
-		values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?***REMOVED***`
+		transaction_status_id, created_at, updated_at) 
+		values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	result, err := m.DB.ExecContext(ctx, stmt,
 		txn.Amount,
@@ -160,58 +160,58 @@ func (m *DBModel***REMOVED*** InsertTransaction(txn Transaction***REMOVED*** (in
 		txn.PaymentIndent,
 		txn.PaymentMethod,
 		txn.TransactionStatusID,
-		time.Now(***REMOVED***,
-		time.Now(***REMOVED***,
-	***REMOVED***
-***REMOVED***
+		time.Now(),
+		time.Now(),
+	)
+	if err != nil {
 		return 0, err
-***REMOVED***
+	}
 
-	id, err := result.LastInsertId(***REMOVED***
-***REMOVED***
+	id, err := result.LastInsertId()
+	if err != nil {
 		return 0, err
-***REMOVED***
+	}
 
-	return int(id***REMOVED***, nil
-***REMOVED***
+	return int(id), nil
+}
 
 // InsertCustomer inserts a new customer, and return its id
-func (m *DBModel***REMOVED*** InsertCustomer(c Customer***REMOVED*** (int, error***REMOVED*** {
-	ctx, close := context.WithTimeout(context.Background(***REMOVED***, 3*time.Second***REMOVED***
-	defer close(***REMOVED***
+func (m *DBModel) InsertCustomer(c Customer) (int, error) {
+	ctx, close := context.WithTimeout(context.Background(), 3*time.Second)
+	defer close()
 
 	stmt := `insert into customers 
-		(first_name, last_name, email, created_at, updated_at***REMOVED*** 
-		values (?, ?, ?, ?, ?***REMOVED***`
+		(first_name, last_name, email, created_at, updated_at) 
+		values (?, ?, ?, ?, ?)`
 
 	result, err := m.DB.ExecContext(ctx, stmt,
 		c.FirstName,
 		c.LastName,
 		c.Email,
-		time.Now(***REMOVED***,
-		time.Now(***REMOVED***,
-	***REMOVED***
-***REMOVED***
+		time.Now(),
+		time.Now(),
+	)
+	if err != nil {
 		return 0, err
-***REMOVED***
+	}
 
-	id, err := result.LastInsertId(***REMOVED***
-***REMOVED***
+	id, err := result.LastInsertId()
+	if err != nil {
 		return 0, err
-***REMOVED***
+	}
 
-	return int(id***REMOVED***, nil
-***REMOVED***
+	return int(id), nil
+}
 
 // InsertOrder inserts a new order, and return its id
-func (m *DBModel***REMOVED*** InsertOrder(order Order***REMOVED*** (int, error***REMOVED*** {
-	ctx, close := context.WithTimeout(context.Background(***REMOVED***, 3*time.Second***REMOVED***
-	defer close(***REMOVED***
+func (m *DBModel) InsertOrder(order Order) (int, error) {
+	ctx, close := context.WithTimeout(context.Background(), 3*time.Second)
+	defer close()
 
 	stmt := `insert into orders 
 		(widget_id, transaction_id, status_id, quantity, customer_id,
-		amount, created_at, updated_at***REMOVED*** 
-		values (?, ?, ?, ?, ?, ?, ?, ?***REMOVED***`
+		amount, created_at, updated_at) 
+		values (?, ?, ?, ?, ?, ?, ?, ?)`
 
 	result, err := m.DB.ExecContext(ctx, stmt,
 		order.WidgetID,
@@ -220,26 +220,26 @@ func (m *DBModel***REMOVED*** InsertOrder(order Order***REMOVED*** (int, error**
 		order.Quantity,
 		order.CustomerID,
 		order.Amount,
-		time.Now(***REMOVED***,
-		time.Now(***REMOVED***,
-	***REMOVED***
-***REMOVED***
+		time.Now(),
+		time.Now(),
+	)
+	if err != nil {
 		return 0, err
-***REMOVED***
+	}
 
-	id, err := result.LastInsertId(***REMOVED***
-***REMOVED***
+	id, err := result.LastInsertId()
+	if err != nil {
 		return 0, err
-***REMOVED***
+	}
 
-	return int(id***REMOVED***, nil
-***REMOVED***
+	return int(id), nil
+}
 
-func (m *DBModel***REMOVED*** GetUserByEmail(email string***REMOVED*** (User, error***REMOVED*** {
-	ctx, cancel := context.WithTimeout(context.Background(***REMOVED***, 3*time.Second***REMOVED***
-	defer cancel(***REMOVED***
+func (m *DBModel) GetUserByEmail(email string) (User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
 
-	email = strings.ToLower(email***REMOVED***
+	email = strings.ToLower(email)
 	var u User
 
 	row := m.DB.QueryRowContext(ctx, `
@@ -247,7 +247,7 @@ func (m *DBModel***REMOVED*** GetUserByEmail(email string***REMOVED*** (User, er
 			id, first_name, last_name, email, password, created_at, updated_at
 		from
 			users
-		where email = ?`, email***REMOVED***
+		where email = ?`, email)
 	err := row.Scan(
 		&u.ID,
 		&u.FirstName,
@@ -256,16 +256,16 @@ func (m *DBModel***REMOVED*** GetUserByEmail(email string***REMOVED*** (User, er
 		&u.Password,
 		&u.CreatedAt,
 		&u.UpdatedAt,
-	***REMOVED***
-***REMOVED***
+	)
+	if err != nil {
 		return u, err
-***REMOVED***
+	}
 	return u, nil
-***REMOVED***
+}
 
-func (m *DBModel***REMOVED*** Authenticate(email, password string***REMOVED*** (int, error***REMOVED*** {
-	ctx, cancel := context.WithTimeout(context.Background(***REMOVED***, 3*time.Second***REMOVED***
-	defer cancel(***REMOVED***
+func (m *DBModel) Authenticate(email, password string) (int, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
 
 	var id int
 	var hashedPassword string
@@ -275,31 +275,31 @@ func (m *DBModel***REMOVED*** Authenticate(email, password string***REMOVED*** (
 			id, password
 		from
 			users
-		where email = ?`, email***REMOVED***
-	err := row.Scan(&id, &hashedPassword***REMOVED***
-***REMOVED***
+		where email = ?`, email)
+	err := row.Scan(&id, &hashedPassword)
+	if err != nil {
 		return id, err
-***REMOVED***
+	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword***REMOVED***, []byte(password***REMOVED******REMOVED***
+	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 	if err == bcrypt.ErrMismatchedHashAndPassword {
-		return 0, errors.New("incorrect password"***REMOVED***
-***REMOVED*** else if err != nil {
+		return 0, errors.New("incorrect password")
+	} else if err != nil {
 		return 0, err
-***REMOVED***
+	}
 
 	return id, nil
-***REMOVED***
+}
 
-func (m *DBModel***REMOVED*** UpdatePasswordForUser(u User, hash string***REMOVED*** error {
-	ctx, cancel := context.WithTimeout(context.Background(***REMOVED***, 3*time.Second***REMOVED***
-	defer cancel(***REMOVED***
+func (m *DBModel) UpdatePasswordForUser(u User, hash string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
 
 	stmt := `update users set password = ? where id = ?`
-	_, err := m.DB.ExecContext(ctx, stmt, hash, u.ID***REMOVED***
-***REMOVED***
+	_, err := m.DB.ExecContext(ctx, stmt, hash, u.ID)
+	if err != nil {
 		return err
-***REMOVED***
+	}
 
 	return nil
-***REMOVED***
+}

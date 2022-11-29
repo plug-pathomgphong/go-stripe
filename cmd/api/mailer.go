@@ -1,53 +1,53 @@
-***REMOVED***
+package main
 
-***REMOVED***
+import (
 	"bytes"
 	"embed"
-***REMOVED***
-***REMOVED***
-***REMOVED***
+	"fmt"
+	"text/template"
+	"time"
 
 	mail "github.com/xhit/go-simple-mail/v2"
-***REMOVED***
+)
 
 //go:embed templates
 var emailTemplateFS embed.FS
 
-func (app *application***REMOVED*** SendMail(from, to, subject, tmpl string, data interface{***REMOVED******REMOVED*** error {
-	templateToRender := fmt.Sprintf("templates/%s.html.tmpl", tmpl***REMOVED***
+func (app *application) SendMail(from, to, subject, tmpl string, data interface{}) error {
+	templateToRender := fmt.Sprintf("templates/%s.html.tmpl", tmpl)
 
-	t, err := template.New("email-html"***REMOVED***.ParseFS(emailTemplateFS, templateToRender***REMOVED***
-***REMOVED***
-		app.errorLog.Println(err***REMOVED***
+	t, err := template.New("email-html").ParseFS(emailTemplateFS, templateToRender)
+	if err != nil {
+		app.errorLog.Println(err)
 		return err
-***REMOVED***
+	}
 
 	var tpl bytes.Buffer
-	if err = t.ExecuteTemplate(&tpl, "body", data***REMOVED***; err != nil {
-		app.errorLog.Println(err***REMOVED***
+	if err = t.ExecuteTemplate(&tpl, "body", data); err != nil {
+		app.errorLog.Println(err)
 		return err
-***REMOVED***
+	}
 
-	formattedMessage := tpl.String(***REMOVED***
+	formattedMessage := tpl.String()
 
-	templateToRender = fmt.Sprintf("templates/%s.plain.tmpl", tmpl***REMOVED***
-	t, err = template.New("email-plain"***REMOVED***.ParseFS(emailTemplateFS, templateToRender***REMOVED***
-***REMOVED***
-		app.errorLog.Println(err***REMOVED***
+	templateToRender = fmt.Sprintf("templates/%s.plain.tmpl", tmpl)
+	t, err = template.New("email-plain").ParseFS(emailTemplateFS, templateToRender)
+	if err != nil {
+		app.errorLog.Println(err)
 		return err
-***REMOVED***
+	}
 
-	if err = t.ExecuteTemplate(&tpl, "body", data***REMOVED***; err != nil {
-		app.errorLog.Println(err***REMOVED***
+	if err = t.ExecuteTemplate(&tpl, "body", data); err != nil {
+		app.errorLog.Println(err)
 		return err
-***REMOVED***
+	}
 
-	plainMessage := tpl.String(***REMOVED***
-	fmt.Println("formattedMessage"***REMOVED***
-	app.infoLog.Println(formattedMessage, plainMessage***REMOVED***
+	plainMessage := tpl.String()
+	fmt.Println("formattedMessage")
+	app.infoLog.Println(formattedMessage, plainMessage)
 
 	// send the mail
-	server := mail.NewSMTPClient(***REMOVED***
+	server := mail.NewSMTPClient()
 	server.Host = app.config.smtp.host
 	server.Port = app.config.smtp.port
 	server.Username = app.config.smtp.username
@@ -57,24 +57,24 @@ func (app *application***REMOVED*** SendMail(from, to, subject, tmpl string, dat
 	server.ConnectTimeout = 10 * time.Second
 	server.SendTimeout = 10 * time.Second
 
-	smtpClient, err := server.Connect(***REMOVED***
-***REMOVED***
+	smtpClient, err := server.Connect()
+	if err != nil {
 		return err
-***REMOVED***
+	}
 
-	email := mail.NewMSG(***REMOVED***
-	email.SetFrom(from***REMOVED***.AddTo(to***REMOVED***.SetSubject(subject***REMOVED***
+	email := mail.NewMSG()
+	email.SetFrom(from).AddTo(to).SetSubject(subject)
 
-	email.SetBody(mail.TextHTML, formattedMessage***REMOVED***
-	email.AddAlternative(mail.TextPlain, plainMessage***REMOVED***
+	email.SetBody(mail.TextHTML, formattedMessage)
+	email.AddAlternative(mail.TextPlain, plainMessage)
 
-	err = email.Send(smtpClient***REMOVED***
-***REMOVED***
-		app.errorLog.Println(err***REMOVED***
+	err = email.Send(smtpClient)
+	if err != nil {
+		app.errorLog.Println(err)
 		return err
-***REMOVED***
+	}
 
-	app.infoLog.Println("send mail"***REMOVED***
+	app.infoLog.Println("send mail")
 
 	return nil
-***REMOVED***
+}

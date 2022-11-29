@@ -1,41 +1,41 @@
-***REMOVED***
+package main
 
-***REMOVED***
-***REMOVED***
+import (
+	"net/http"
 
 	"github.com/go-chi/chi/v5"
-***REMOVED***
+)
 
-func (app *application***REMOVED*** routes(***REMOVED*** http.Handler {
-	mux := chi.NewRouter(***REMOVED***
-	mux.Use(SessionLoad***REMOVED***
+func (app *application) routes() http.Handler {
+	mux := chi.NewRouter()
+	mux.Use(SessionLoad)
 
-	mux.Get("/", app.Home***REMOVED***
+	mux.Get("/", app.Home)
 
-	mux.Route("/admin", func(r chi.Router***REMOVED*** {
-		r.Use(app.Auth***REMOVED***
-		r.Get("/virtual-terminal", app.VirtualTerminal***REMOVED***
-***REMOVED******REMOVED***
+	mux.Route("/admin", func(r chi.Router) {
+		r.Use(app.Auth)
+		r.Get("/virtual-terminal", app.VirtualTerminal)
+	})
 
-	// mux.Post("/virtual-terminal-payment-succeeded", app.VirtualTerminalPaymentSucceeded***REMOVED***
-	// mux.Get("/virtual-terminal-receipt", app.VirtualTerminalReceipt***REMOVED***
+	// mux.Post("/virtual-terminal-payment-succeeded", app.VirtualTerminalPaymentSucceeded)
+	// mux.Get("/virtual-terminal-receipt", app.VirtualTerminalReceipt)
 
-	mux.Get("/widget/{id***REMOVED***", app.ChangeOnce***REMOVED***
-	mux.Post("/payment-succeeded", app.PaymentSucceeded***REMOVED***
-	mux.Get("/receipt", app.Receipt***REMOVED***
+	mux.Get("/widget/{id}", app.ChangeOnce)
+	mux.Post("/payment-succeeded", app.PaymentSucceeded)
+	mux.Get("/receipt", app.Receipt)
 
-	mux.Get("/plan/bronze", app.BronzePlan***REMOVED***
-	mux.Get("/receipt/bronze", app.BronzePlanReceipt***REMOVED***
+	mux.Get("/plan/bronze", app.BronzePlan)
+	mux.Get("/receipt/bronze", app.BronzePlanReceipt)
 
 	// auth route
-	mux.Get("/login", app.LoginPage***REMOVED***
-	mux.Post("/login", app.PostLoginPage***REMOVED***
-	mux.Get("/logout", app.Logout***REMOVED***
-	mux.Get("/forgot-password", app.ForgotPassword***REMOVED***
-	mux.Get("/reset-password", app.ShowResetPassword***REMOVED***
+	mux.Get("/login", app.LoginPage)
+	mux.Post("/login", app.PostLoginPage)
+	mux.Get("/logout", app.Logout)
+	mux.Get("/forgot-password", app.ForgotPassword)
+	mux.Get("/reset-password", app.ShowResetPassword)
 
-	fileServer := http.FileServer(http.Dir("./static"***REMOVED******REMOVED***
-	mux.Handle("/static/*", http.StripPrefix("/static", fileServer***REMOVED******REMOVED***
+	fileServer := http.FileServer(http.Dir("./static"))
+	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))
 
 	return mux
-***REMOVED***
+}

@@ -1,11 +1,11 @@
-{{template "base" .***REMOVED******REMOVED***
+{{template "base" .}}
 
-{{define "title"***REMOVED******REMOVED***
+{{define "title"}}
     Login
-{{end***REMOVED******REMOVED***
+{{end}}
 
-{{define "content"***REMOVED******REMOVED***
-{{$widget := index .Data "widget"***REMOVED******REMOVED***
+{{define "content"}}
+{{$widget := index .Data "widget"}}
     <hr>
     <div id="login-messages" class="alert alert-danger text-center d-none"></div>
     <form 
@@ -33,69 +33,69 @@
 
         <hr />
 
-        <a href="javascript:void(0***REMOVED***" class="btn btn-primary" onclick="val(***REMOVED***">Login</a>
+        <a href="javascript:void(0)" class="btn btn-primary" onclick="val()">Login</a>
 
         <p class="mt-2">
           <small><a href="/forgot-password">Forgot password?</a></small>
         </p>
       
     </form>
-{{end***REMOVED******REMOVED***
-{{define "js"***REMOVED******REMOVED***
+{{end}}
+{{define "js"}}
 <script>
-let loginMessages = document.getElementById("login-messages"***REMOVED***
-    function showError(msg***REMOVED*** {
-        loginMessages.classList.add("alert-danger"***REMOVED***;
-        loginMessages.classList.remove("alert-success"***REMOVED***;
-        loginMessages.classList.remove("d-none"***REMOVED***;
+let loginMessages = document.getElementById("login-messages")
+    function showError(msg) {
+        loginMessages.classList.add("alert-danger");
+        loginMessages.classList.remove("alert-success");
+        loginMessages.classList.remove("d-none");
         loginMessages.innerText = msg;
-    ***REMOVED***
+    }
 
-    function showSuccess(***REMOVED*** {
-        loginMessages.classList.remove("alert-danger"***REMOVED***;
-        loginMessages.classList.add("alert-success"***REMOVED***;
-        loginMessages.classList.remove("d-none"***REMOVED***;
+    function showSuccess() {
+        loginMessages.classList.remove("alert-danger");
+        loginMessages.classList.add("alert-success");
+        loginMessages.classList.remove("d-none");
         loginMessages.innerText = "Login successful";
-    ***REMOVED***  
-    function val(***REMOVED***{
-      let form = document.getElementById("login_form"***REMOVED***
-      if(form.checkValidity(***REMOVED*** == false***REMOVED*** {
-        this.event.preventDefault(***REMOVED***;
-        this.event.stopPropagation(***REMOVED***;
-        form.classList.add("was-validated"***REMOVED***;
+    }  
+    function val(){
+      let form = document.getElementById("login_form")
+      if(form.checkValidity() == false) {
+        this.event.preventDefault();
+        this.event.stopPropagation();
+        form.classList.add("was-validated");
         return;
-      ***REMOVED***
-      form.classList.add("was-validated"***REMOVED***
+      }
+      form.classList.add("was-validated")
 
       let payload = {
-        email: document.getElementById("email"***REMOVED***.value,
-        password: document.getElementById("password"***REMOVED***.value,
-      ***REMOVED***
+        email: document.getElementById("email").value,
+        password: document.getElementById("password").value,
+      }
 
       const requestOptions = {
         method: 'post',
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
-        ***REMOVED***,
-        body: JSON.stringify(payload***REMOVED***
-      ***REMOVED***
+        },
+        body: JSON.stringify(payload)
+      }
      
-      fetch("{{.API***REMOVED******REMOVED***/api/authenticate", requestOptions***REMOVED***
-        .then(response => response.json(***REMOVED******REMOVED***
+      fetch("{{.API}}/api/authenticate", requestOptions)
+        .then(response => response.json())
         .then(data => {
-            console.log(data***REMOVED***;
-            if (data.error === false***REMOVED*** {
-              localStorage.setItem('token', data.authentication_token.token***REMOVED***
-              localStorage.setItem('token_expiry', data.authentication_token.expiry***REMOVED***
-              showSuccess(***REMOVED***
-              document.getElementById("login_form"***REMOVED***.submit(***REMOVED***
-               {{/* location.href = "/" */***REMOVED******REMOVED***
-            ***REMOVED*** else {
-              showError(data.message***REMOVED***
-            ***REMOVED***
+            console.log(data);
+            if (data.error === false) {
+              localStorage.setItem('token', data.authentication_token.token)
+              localStorage.setItem('token_expiry', data.authentication_token.expiry)
+              showSuccess()
+              document.getElementById("login_form").submit()
+               {{/* location.href = "/" */}}
+            } else {
+              showError(data.message)
+            }
           
-        ***REMOVED******REMOVED***
-    ***REMOVED***
+        })
+    }
 </script>
-{{end***REMOVED******REMOVED***
+{{end}}

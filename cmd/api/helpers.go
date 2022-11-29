@@ -1,95 +1,95 @@
-***REMOVED***
+package main
 
-***REMOVED***
+import (
 	"encoding/json"
 	"errors"
 	"io"
-***REMOVED***
+	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
-***REMOVED***
+)
 
 // writeJSON wrties aribtarary data out as JSON
-func (app *application***REMOVED*** writeJSON(w http.ResponseWriter, status int, data interface{***REMOVED***, headers ...http.Header***REMOVED*** error {
-	out, err := json.MarshalIndent(data, "", "\t"***REMOVED***
-***REMOVED***
+func (app *application) writeJSON(w http.ResponseWriter, status int, data interface{}, headers ...http.Header) error {
+	out, err := json.MarshalIndent(data, "", "\t")
+	if err != nil {
 		return err
-***REMOVED***
+	}
 
-	if len(headers***REMOVED*** > 0 {
+	if len(headers) > 0 {
 		for k, v := range headers[0] {
-			w.Header(***REMOVED***[k] = v
-	***REMOVED***
-***REMOVED***
+			w.Header()[k] = v
+		}
+	}
 
-	w.Header(***REMOVED***.Set("Content-Type", "application/json"***REMOVED***
-	w.WriteHeader(status***REMOVED***
-	w.Write(out***REMOVED***
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	w.Write(out)
 	return nil
-***REMOVED***
+}
 
-func (app *application***REMOVED*** readJSON(w http.ResponseWriter, r *http.Request, data interface{***REMOVED******REMOVED*** error {
+func (app *application) readJSON(w http.ResponseWriter, r *http.Request, data interface{}) error {
 	maxBytes := 1048576
-	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes***REMOVED******REMOVED***
+	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
 
-	dec := json.NewDecoder(r.Body***REMOVED***
-	err := dec.Decode(data***REMOVED***
-***REMOVED***
+	dec := json.NewDecoder(r.Body)
+	err := dec.Decode(data)
+	if err != nil {
 		return err
-***REMOVED***
+	}
 
-	err = dec.Decode(&struct{***REMOVED***{***REMOVED******REMOVED***
+	err = dec.Decode(&struct{}{})
 	if err != io.EOF {
-		return errors.New("body must only have a single JSON value"***REMOVED***
-***REMOVED***
+		return errors.New("body must only have a single JSON value")
+	}
 
 	return nil
-***REMOVED***
+}
 
-func (app *application***REMOVED*** badRequest(w http.ResponseWriter, r *http.Request, err error***REMOVED*** error {
+func (app *application) badRequest(w http.ResponseWriter, r *http.Request, err error) error {
 	var payload struct {
 		Error   bool   `json:"error"`
 		Message string `json:"message"`
-***REMOVED***
+	}
 
 	payload.Error = true
-	payload.Message = err.Error(***REMOVED***
+	payload.Message = err.Error()
 
-	out, err := json.MarshalIndent(payload, "", "   "***REMOVED***
-***REMOVED***
+	out, err := json.MarshalIndent(payload, "", "   ")
+	if err != nil {
 		return err
-***REMOVED***
+	}
 
-	w.Header(***REMOVED***.Set("Content-Type", "application/json"***REMOVED***
-	w.Write(out***REMOVED***
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(out)
 	return nil
-***REMOVED***
+}
 
-func (app *application***REMOVED*** invalidCredentials(w http.ResponseWriter***REMOVED*** error {
+func (app *application) invalidCredentials(w http.ResponseWriter) error {
 	var payload struct {
 		Error   bool   `json:"error"`
 		Message string `json:"message"`
-***REMOVED***
+	}
 
 	payload.Error = true
 	payload.Message = "invalid authentication credentials"
 
-	err := app.writeJSON(w, http.StatusUnauthorized, payload***REMOVED***
-***REMOVED***
+	err := app.writeJSON(w, http.StatusUnauthorized, payload)
+	if err != nil {
 		return err
-***REMOVED***
+	}
 	return nil
-***REMOVED***
+}
 
-func (app *application***REMOVED*** passwordMatches(hash, password string***REMOVED*** (bool, error***REMOVED*** {
-	err := bcrypt.CompareHashAndPassword([]byte(hash***REMOVED***, []byte(password***REMOVED******REMOVED***
-***REMOVED***
+func (app *application) passwordMatches(hash, password string) (bool, error) {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	if err != nil {
 		switch {
-		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword***REMOVED***:
+		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
 			return false, nil
 		default:
 			return false, err
-	***REMOVED***
-***REMOVED***
+		}
+	}
 	return true, nil
-***REMOVED***
+}
