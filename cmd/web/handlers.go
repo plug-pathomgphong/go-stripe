@@ -33,7 +33,7 @@ type TransactionData struct {
 	FirstName       string
 	LastName        string
 	Email           string
-	PaymentIndentID string
+	PaymentIntentID string
 	PaymentMethodID string
 	PaymentAmount   int
 	PaymentCurrency string
@@ -56,7 +56,7 @@ func (app *application) GetTransactionData(r *http.Request) (TransactionData, er
 	firstName := r.Form.Get("first_name")
 	lastName := r.Form.Get("last_name")
 	email := r.Form.Get("email")
-	paymentIndent := r.Form.Get("payment_intent")
+	paymentIntent := r.Form.Get("payment_intent")
 	paymentMethod := r.Form.Get("payment_method")
 	paymentAmount := r.Form.Get("payment_amount")
 	paymentCurrency := r.Form.Get("payment_currency")
@@ -67,7 +67,7 @@ func (app *application) GetTransactionData(r *http.Request) (TransactionData, er
 		Key:    app.config.stripe.key,
 	}
 
-	pi, err := card.RetrievePaymentIntent(paymentIndent)
+	pi, err := card.RetrievePaymentIntent(paymentIntent)
 	if err != nil {
 		app.errorLog.Println(err)
 		return tnxData, err
@@ -87,7 +87,7 @@ func (app *application) GetTransactionData(r *http.Request) (TransactionData, er
 		FirstName:       firstName,
 		LastName:        lastName,
 		Email:           email,
-		PaymentIndentID: paymentIndent,
+		PaymentIntentID: paymentIntent,
 		PaymentMethodID: paymentMethod,
 		PaymentAmount:   amount,
 		PaymentCurrency: paymentCurrency,
@@ -132,7 +132,7 @@ func (app *application) PaymentSucceeded(w http.ResponseWriter, r *http.Request)
 		ExpiryMonth:         txnData.ExpiryMonth,
 		ExpiryYear:          txnData.ExpiryYear,
 		BankReturnCode:      txnData.BankReturnCode,
-		PaymentIndent:       txnData.PaymentIndentID,
+		PaymentIntent:       txnData.PaymentIntentID,
 		PaymentMethod:       txnData.PaymentMethodID,
 		TransactionStatusID: 2,
 	}
@@ -201,7 +201,7 @@ func (app *application) VirtualTerminalPaymentSucceeded(w http.ResponseWriter, r
 		ExpiryMonth:         txnData.ExpiryMonth,
 		ExpiryYear:          txnData.ExpiryYear,
 		BankReturnCode:      txnData.BankReturnCode,
-		PaymentIndent:       txnData.PaymentIndentID,
+		PaymentIntent:       txnData.PaymentIntentID,
 		PaymentMethod:       txnData.PaymentMethodID,
 		TransactionStatusID: 2,
 	}
@@ -412,6 +412,32 @@ func (app *application) AllSales(w http.ResponseWriter, r *http.Request) {
 func (app *application) AllSubscriptions(w http.ResponseWriter, r *http.Request) {
 
 	if err := app.renderTemplate(w, r, "all-subscriptions", &templateData{}); err != nil {
+		app.errorLog.Println(err)
+	}
+}
+
+func (app *application) ShowSale(w http.ResponseWriter, r *http.Request) {
+	stringMap := make(map[string]string)
+	stringMap["title"] = "Sale"
+	stringMap["cancel"] = "/admin/all-sales"
+	stringMap["refund-url"] = "/api/admin/refund"
+	stringMap["refund-btn"] = "Return Order"
+	stringMap["refund-badge"] = "Refunded"
+	stringMap["refund-msg"] = "Charge refunded"
+	if err := app.renderTemplate(w, r, "sale", &templateData{StringMap: stringMap}); err != nil {
+		app.errorLog.Println(err)
+	}
+}
+
+func (app *application) ShowSubscription(w http.ResponseWriter, r *http.Request) {
+	stringMap := make(map[string]string)
+	stringMap["title"] = "Subscription"
+	stringMap["cancel"] = "/admin/all-subscriptions"
+	stringMap["refund-url"] = "/api/admin/cancel-subscription"
+	stringMap["refund-btn"] = "Cancel Subscription"
+	stringMap["refund-badge"] = "Cancelled"
+	stringMap["refund-msg"] = "Subscription cancelled"
+	if err := app.renderTemplate(w, r, "sale", &templateData{StringMap: stringMap}); err != nil {
 		app.errorLog.Println(err)
 	}
 }

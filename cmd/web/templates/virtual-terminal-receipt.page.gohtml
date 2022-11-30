@@ -8,7 +8,7 @@
     <h2 class="mt-5">Virtual Terminal Payment Secceeded</h2>
     <hr>
     {{$txn := index .Data "txn"}}
-    <p>Payment Indent: {{$txn.PaymentIndentID}}</p>
+    <p>Payment Intent: {{$txn.PaymentIntentID}}</p>
     <p>Email: {{$txn.Email}}</p>
     <p>Payment Method: {{$txn.PaymentMethodID}}</p>
     <p>Payment Amount: {{$txn.PaymentAmount}}</p>

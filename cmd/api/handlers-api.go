@@ -184,6 +184,8 @@ func (app *application) CreateCustomerAndSubscribeToPlan(w http.ResponseWriter, 
 			ExpiryMonth:         data.ExpiryMonth,
 			ExpiryYear:          data.ExpiryYear,
 			TransactionStatusID: 2,
+			PaymentIntent:       subscription.ID,
+			PaymentMethod:       data.PaymentMethod,
 		}
 
 		txnID, err := app.SaveTransaction(txn)
@@ -410,7 +412,7 @@ func (app *application) VirtualTerminalPaymentSucceeded(w http.ResponseWriter, r
 		LastFour:            txnData.LastFour,
 		ExpiryMonth:         txnData.ExpiryMonth,
 		ExpiryYear:          txnData.ExpiryYear,
-		PaymentIndent:       txnData.PaymentIntent,
+		PaymentIntent:       txnData.PaymentIntent,
 		PaymentMethod:       txnData.PaymentMethod,
 		BankReturnCode:      pi.Charges.Data[0].ID,
 		TransactionStatusID: 2,
@@ -546,4 +548,116 @@ func (app *application) AllSales(w http.ResponseWriter, r *http.Request) {
 	}
 
 	app.writeJSON(w, http.StatusOK, allSales)
+}
+
+func (app *application) AllSubscriptions(w http.ResponseWriter, r *http.Request) {
+	allSales, err := app.DB.GetAllSubscriptions()
+	if err != nil {
+		app.badRequest(w, r, err)
+		return
+	}
+
+	app.writeJSON(w, http.StatusOK, allSales)
+}
+
+func (app *application) GetSale(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	orderID, _ := strconv.Atoi(id)
+
+	order, err := app.DB.GetOrderByID(orderID)
+	if err != nil {
+		app.badRequest(w, r, err)
+		return
+	}
+
+	app.writeJSON(w, http.StatusOK, order)
+}
+
+func (app *application) RefundCharge(w http.ResponseWriter, r *http.Request) {
+	var chargeToRefund struct {
+		ID            int    `json:"id"`
+		PaymentIntent string `json:"pi"`
+		Amount        int    `json:"amount"`
+		Currency      string `json:"currency"`
+	}
+
+	err := app.readJSON(w, r, &chargeToRefund)
+	if err != nil {
+		app.badRequest(w, r, err)
+		return
+	}
+
+	// validate
+	card := cards.Card{
+		Secret:   app.config.stripe.secret,
+		Key:      app.config.stripe.key,
+		Currency: chargeToRefund.Currency,
+	}
+
+	err = card.Refund(chargeToRefund.PaymentIntent, chargeToRefund.Amount)
+	if err != nil {
+		app.badRequest(w, r, err)
+		return
+	}
+
+	// update status in db
+	err = app.DB.UpdateOrderStatus(chargeToRefund.ID, 2)
+	if err != nil {
+		app.badRequest(w, r, errors.New("the charge was refunded, but the database could not be updated"))
+		return
+	}
+
+	var resp struct {
+		Error   bool   `json:"error"`
+		Message string `json:"message"`
+	}
+
+	resp.Error = false
+	resp.Message = "Charge refunded"
+
+	app.writeJSON(w, http.StatusOK, resp)
+}
+
+func (app *application) CancelSubscription(w http.ResponseWriter, r *http.Request) {
+	var subToCancel struct {
+		ID            int    `json:"id"`
+		PaymentIntent string `json:"pi"`
+		Currency      string `json:"currency"`
+	}
+
+	err := app.readJSON(w, r, &subToCancel)
+	if err != nil {
+		app.badRequest(w, r, err)
+		return
+	}
+
+	// validate
+	card := cards.Card{
+		Secret:   app.config.stripe.secret,
+		Key:      app.config.stripe.key,
+		Currency: subToCancel.Currency,
+	}
+
+	err = card.CancelSubscription(subToCancel.PaymentIntent)
+	if err != nil {
+		app.badRequest(w, r, err)
+		return
+	}
+
+	// update status in db
+	err = app.DB.UpdateOrderStatus(subToCancel.ID, 3)
+	if err != nil {
+		app.badRequest(w, r, errors.New("the subscription was cancelled, but the database could not be updated"))
+		return
+	}
+
+	var resp struct {
+		Error   bool   `json:"error"`
+		Message string `json:"message"`
+	}
+
+	resp.Error = false
+	resp.Message = "Subscription cancelled"
+
+	app.writeJSON(w, http.StatusOK, resp)
 }
