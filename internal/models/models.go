@@ -96,9 +96,10 @@ type User struct {
 	FirstName string    `json:"first_name"`
 	LastName  string    `json:"last_name"`
 	Email     string    `json:"email"`
-	Password  string    `json:"password"`
+	Password  string    `json:"password,omitempty"`
 	CreatedAt time.Time `json:"-"`
 	UpdatedAt time.Time `json:"-"`
+	Activate  bool      `json:"activate"`
 }
 
 // Customer is the type for customers
@@ -685,7 +686,7 @@ func (m *DBModel) GetAllUsers() ([]*User, error) {
 
 	query := `
 		select
-			id, last_name, first_name, email, created_at, updated_at
+			id, last_name, first_name, email, created_at, updated_at, CASE WHEN deleted_at IS NOT NULL THEN 0 ELSE 1 END
 		from
 			users
 		order by
@@ -705,6 +706,7 @@ func (m *DBModel) GetAllUsers() ([]*User, error) {
 			&u.Email,
 			&u.CreatedAt,
 			&u.UpdatedAt,
+			&u.Activate,
 		)
 		if err != nil {
 			return nil, err
@@ -780,6 +782,7 @@ func (m *DBModel) AddUser(u User, hash string) error {
 	return nil
 }
 
+// soft delete: updated into deleted_at
 func (m *DBModel) DeleteUser(id int) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -790,15 +793,28 @@ func (m *DBModel) DeleteUser(id int) error {
 		return err
 	}
 
+	stmt = `delete from tokens where user_id = ?`
+	_, err = m.DB.ExecContext(ctx, stmt, id)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
+// hard delete: delete data in databbase
 func (m *DBModel) RemoveUser(id int) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	stmt := `delete from users where id = ?)`
+	stmt := `delete from users where id = ?`
 	_, err := m.DB.ExecContext(ctx, stmt, id)
+	if err != nil {
+		return err
+	}
+
+	stmt = `delete from tokens where user_id = ?`
+	_, err = m.DB.ExecContext(ctx, stmt, id)
 	if err != nil {
 		return err
 	}

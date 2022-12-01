@@ -7,114 +7,170 @@
 {{define "content"}}
 <h2 class="mt-5">Admin User</h2>
 <hr>
+<form 
+    action="" 
+    method="post"
+    name="user_form"
+    id="user_form"
+    class="needs-validation"
+    autocomplete="off" 
+    novalidate="">
+
+    <div class="mb-3">
+        <label for="first-name" class="form-label">First name</label>
+        <input type="text" class="form-control" id="first-name" name="first_name"
+            required="" autocomplete="first-name-new">
+    </div>
+
+    <div class="mb-3">
+        <label for="last-name" class="form-label">Last name</label>
+        <input type="text" class="form-control" id="last-name" name="last_name"
+            required="" autocomplete="last-name-new">
+    </div>
+
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" name="email"
+            required="" autocomplete="email-new">
+    </div>
+
+    <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" name="password"
+             autocomplete="password-new">
+    </div>
+
+        <div class="mb-3">
+        <label for="verify-password" class="form-label">Verify Password</label>
+        <input type="password" class="form-control" id="verify-password" name="verify-password"
+            autocomplete="verify-password-new">
+    </div>
+
+    <div class="float-start">
+         <a id="saveBtn" class="btn btn-primary" href="javascript:void(0)" onclick="val()">Save Changes</a>
+         <a id="cancelBtn" class="btn btn-warning" href="/admin/all-users">Cancel</a>
+    </div>
+    <div class="float-end">
+         <a id="deleteBtn" class="btn btn-danger d-none" href="javascript:void(0)">Delete</a>
+    </div>
+
+</form>
 
 {{end}}
 
 {{define "js"}}
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-let currentPage = 1;
-let pageSize = 5;
- let tbody = document.getElementById("user-table").getElementsByTagName("tbody")[0];
-{{/* 
-function paginator(pages, curPage) {
-    let p = document.getElementById("paginator");
+ let token = localStorage.getItem("token")
+let id = window.location.pathname.split("/").pop()
+let delBtn = document.getElementById("deleteBtn")
+document.addEventListener("DOMContentLoaded",function(){
+   
 
-    let html = `<li class="page-item"><a href="#!" class="page-link pager" data-page="${curPage - 1}">&lt;</a></li>`;
+    if (id !== "0") {
+        if (id !== "{{.UserID}}"){
+            delBtn.classList.remove("d-none")
+        }
+        
+        const requestOptions = {
+            method: 'get',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token,
+            },
+        }
 
-    for (var i = 0; i < pages; i++) {
-        html += `<li class="page-item"><a href="#!" class="page-link pager" data-page="${i + 1}">${i + 1}</a></li>`;
-    }
-
-    html += `<li class="page-item"><a href="#!" class="page-link pager" data-page="${curPage + 1}">&gt;</a></li>`;
-
-    p.innerHTML = html;
-
-    let pageBtns = document.getElementsByClassName("pager");
-    for (var j = 0; j < pageBtns.length; j++) {
-        pageBtns[j].addEventListener("click", function(evt){
-            let desiredPage = evt.target.getAttribute("data-page");
-            console.log("clicked, and data-page is", desiredPage);
-            if ((desiredPage > 0) && (desiredPage <= pages )) {
-                console.log("would go to page", desiredPage);
-                updateTable(pageSize, desiredPage);
-            }
-        })
-    }
-}
-
-function updateTable(pSize, page){
-    let token = localStorage.getItem("token")
-    let tbody = document.getElementById("sales-tables").getElementsByTagName("tbody")[0]
-    tbody.innerHTML = "";
-
-    let body = {
-        page_size: parseInt(pSize,10),
-        page: parseInt(page),
-    }
-    const requestOptions = {
-        method: 'post',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token,
-        },
-        body: JSON.stringify(body)
-    }
-
-    fetch("{{.API}}/api/admin/all-sales", requestOptions)
+        fetch("{{.API}}/api/admin/all-users/" + id, requestOptions)
         .then(response => response.json())
         .then(data => {
             console.log(data)
+            if(data){
+                document.getElementById("first-name").value = data.first_name
+                document.getElementById("last-name").value = data.last_name
+                document.getElementById("email").value = data.email
+            }
+        })    
+    }
 
-            if(data.orders){
-                data.orders.forEach(function(i){
-                    let newRow = tbody.insertRow();
-                    let newCell = newRow.insertCell();
+})
+delBtn.addEventListener("click", function() {
+    Swal.fire({
+    title: 'Are you sure?',
+    text: "You won't be able to undo this!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Delete user'
+    }).then((result) => {
+        if (result.isConfirmed) {
 
-                    newCell.innerHTML = `<a href="/admin/sales/${i.id}"> Order ${i.id}</a>`
-
-                    newCell = newRow.insertCell();
-                    let item = document.createTextNode(i.customer.last_name + ", " + i.customer.first_name);
-                    newCell.appendChild(item)
-
-                    newCell = newRow.insertCell();
-                    item = document.createTextNode(i.widget.name);
-                    newCell.appendChild(item)
-
-                    let currency = formatCurrency(i.transaction.amount)
-                    newCell = newRow.insertCell();
-                    item = document.createTextNode(currency);
-                    newCell.appendChild(item)
-
-                    newCell = newRow.insertCell();
-                    if (i.status_id != 1) {
-                        newCell.innerHTML = `<span class="badge bg-danger">Refund</span>`
-                    } else {
-                        newCell.innerHTML = `<span class="badge bg-success">Charged</span>`
-                    }
-                })
-                paginator(data.last_page, data.current_page)
-            }else{
-                let newRow = tbody.insertRow();
-                let newCell = newRow.insertCell();
-                newCell.setAttribute("colSpan", "5");
-                newCell.style.textAlign = "center";
-                newCell.innerHTML = `No data available`
+            const requestOptions = {
+                method: 'get',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token,
+                }
             }
             
+             fetch("{{.API}}/api/admin/all-users/delete/" + id , requestOptions)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    Swal.fire("Error: " + data.message)
+                } else {
+                    location.href = "/admin/all-users"
+                }
+            })
+
+        }
+    })
+})
+function val(){
+    let form = document.getElementById("user_form")
+    if(form.checkValidity() == false) {
+    this.event.preventDefault();
+    this.event.stopPropagation();
+    form.classList.add("was-validated");
+        return;
+    }
+    form.classList.add("was-validated")
+
+    if (document.getElementById("password").value !== document.getElementById("verify-password").value ) {
+        showError("Passwords do not match!")
+        return
+    }
+
+    let payload = {
+        id: parseInt(id, 10),
+        first_name: document.getElementById("first-name").value,
+        last_name: document.getElementById("last-name").value,
+        password: document.getElementById("password").value,
+        email: document.getElementById("email").value,
+    }
+
+    const requestOptions = {
+    method: 'post',
+    headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token,
+    },
+    body: JSON.stringify(payload)
+    }
+    
+    fetch("{{.API}}/api/admin/all-users/edit/" + id, requestOptions)
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            Swal.fire("Error: " + data.message)
+        } else {
+            location.href = "/admin/all-users"
+        }
+        
     })
 }
-document.addEventListener("DOMContentLoaded",function(){
-    updateTable(pageSize, currentPage)
-})
-      
-
-function formatCurrency(amount){
-    let c = parseFloat(amount/100);
-    return c.toLocaleString("en-CA", {
-        style: "currency",
-        currency: "CAD",
-    })
-} */}}
 </script>
 {{end}}

@@ -8,7 +8,7 @@
 <h2 class="mt-5">All Users</h2>
 <hr>
 <div class="float-end">
-    <a class="btn bnt-outline-secondary" href="/admin/all/users/0">Add User</a>
+    <a class="btn btn-outline-secondary" href="/admin/all-users/0">Add User</a>
 </div>
 <div class="clearfix"></div>
 <table id="user-table" class="table table-striped">
@@ -90,6 +90,14 @@ function updateTable(pSize, page){
                     newCell = newRow.insertCell();
                     let item = document.createTextNode(i.email);
                     newCell.appendChild(item)
+
+                    newCell = newRow.insertCell();
+                    newCell.style.textAlign = "center";
+                    if (i.activate) {
+                        newCell.innerHTML = `<span class="badge bg-success">Activate</span>`
+                    } else {
+                        newCell.innerHTML = `<span class="badge bg-danger">Inactivate</span>`
+                    }
 
                 })
                 {{/* paginator(data.last_page, data.current_page) */}}
