@@ -1,0 +1,112 @@
+{{template "base" .}}
+
+{{define "title"}}
+    All Users
+{{end}}
+
+{{define "content"}}
+<h2 class="mt-5">All Users</h2>
+<hr>
+<div class="float-end">
+    <a class="btn bnt-outline-secondary" href="/admin/all/users/0">Add User</a>
+</div>
+<div class="clearfix"></div>
+<table id="user-table" class="table table-striped">
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>Email</th>
+        </tr>
+    </thead>
+    <tbody>
+    
+    </tbody>
+</table>
+<nav aria-label="Page navigation">
+  <ul id="paginator" class="pagination">
+  </ul>
+</nav>
+{{end}}
+
+{{define "js"}}
+<script>
+let currentPage = 1;
+let pageSize = 5;
+ let tbody = document.getElementById("user-table").getElementsByTagName("tbody")[0];
+
+function paginator(pages, curPage) {
+    let p = document.getElementById("paginator");
+
+    let html = `<li class="page-item"><a href="#!" class="page-link pager" data-page="${curPage - 1}">&lt;</a></li>`;
+
+    for (var i = 0; i < pages; i++) {
+        html += `<li class="page-item"><a href="#!" class="page-link pager" data-page="${i + 1}">${i + 1}</a></li>`;
+    }
+
+    html += `<li class="page-item"><a href="#!" class="page-link pager" data-page="${curPage + 1}">&gt;</a></li>`;
+
+    p.innerHTML = html;
+
+    let pageBtns = document.getElementsByClassName("pager");
+    for (var j = 0; j < pageBtns.length; j++) {
+        pageBtns[j].addEventListener("click", function(evt){
+            let desiredPage = evt.target.getAttribute("data-page");
+            if ((desiredPage > 0) && (desiredPage <= pages )) {
+                updateTable(pageSize, desiredPage);
+            }
+        })
+    }
+}
+
+function updateTable(pSize, page){
+    let token = localStorage.getItem("token")
+    let tbody = document.getElementById("user-table").getElementsByTagName("tbody")[0]
+    tbody.innerHTML = "";
+
+    let body = {
+        page_size: parseInt(pSize,10),
+        page: parseInt(page),
+    }
+    const requestOptions = {
+        method: 'post',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token,
+        },
+    }
+
+    fetch("{{.API}}/api/admin/all-users", requestOptions)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+            if(data){
+                data.forEach(function(i){
+                    let newRow = tbody.insertRow();
+                    let newCell = newRow.insertCell();
+
+                    newCell.innerHTML = `<a href="/admin/all-users/${i.id}">${i.last_name}, ${i.first_name}</a>`
+
+                    newCell = newRow.insertCell();
+                    let item = document.createTextNode(i.email);
+                    newCell.appendChild(item)
+
+                })
+                {{/* paginator(data.last_page, data.current_page) */}}
+            }else{
+                let newRow = tbody.insertRow();
+                let newCell = newRow.insertCell();
+                newCell.setAttribute("colSpan", "2");
+                newCell.style.textAlign = "center";
+                newCell.innerHTML = `No data available`
+            }
+
+            
+    })
+}
+document.addEventListener("DOMContentLoaded",function(){
+    updateTable(pageSize, currentPage)
+})
+
+</script>
+{{end}}
