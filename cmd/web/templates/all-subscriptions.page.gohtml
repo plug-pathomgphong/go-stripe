@@ -21,13 +21,54 @@
     
     </tbody>
 </table>
-
+<nav aria-label="Page navigation">
+  <ul id="paginator" class="pagination">
+  </ul>
+</nav>
 {{end}}
 
 {{define "js"}}
 <script>
+let currentPage = 1;
+let pageSize = 5;
+
+function paginator(pages, curPage) {
+    console.log('%c Pages %s', 'background: #222; color: #bada55', pages);
+    console.log('%c curPage %s', 'background: #ccc; color: #000', curPage);
+    let p = document.getElementById("paginator");
+
+    let html = `<li class="page-item"><a href="#!" class="page-link pager" data-page="${curPage - 1}">&lt;</a></li>`;
+
+    for (var i = 0; i < pages; i++) {
+        html += `<li class="page-item"><a href="#!" class="page-link pager" data-page="${i + 1}">${i + 1}</a></li>`;
+    }
+
+    html += `<li class="page-item"><a href="#!" class="page-link pager" data-page="${curPage + 1}">&gt;</a></li>`;
+
+    p.innerHTML = html;
+
+    let pageBtns = document.getElementsByClassName("pager");
+    for (var j = 0; j < pageBtns.length; j++) {
+        pageBtns[j].addEventListener("click", function(evt){
+            let desiredPage = evt.target.getAttribute("data-page");
+            console.log("clicked, and data-page is", desiredPage);
+            if ((desiredPage > 0) && (desiredPage <= pages )) {
+                console.log("would go to page", desiredPage);
+                updateTable(pageSize, desiredPage);
+            }
+        })
+    }
+}
+
+function updateTable(pSize, page){
     let token = localStorage.getItem("token")
     let tbody = document.getElementById("sales-tables").getElementsByTagName("tbody")[0]
+    tbody.innerHTML = "";
+
+    let body = {
+        page_size: parseInt(pSize,10),
+        page: parseInt(page),
+    }
     const requestOptions = {
         method: 'post',
         headers: {
@@ -35,6 +76,7 @@
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + token,
         },
+        body: JSON.stringify(body)
     }
 
     fetch("{{.API}}/api/admin/all-subscriptions", requestOptions)
@@ -42,8 +84,8 @@
         .then(data => {
             console.log(data)
 
-            if(data !== null){
-                data.forEach(function(i){
+            if(data.orders !== null){
+                data.orders.forEach(function(i){
                     let newRow = tbody.insertRow();
                     let newCell = newRow.insertCell();
 
@@ -69,22 +111,28 @@
                         newCell.innerHTML = `<span class="badge bg-success">Charged</span>`
                     }
                 })
+                paginator(data.last_page, data.current_page)
             }else{
                 let newRow = tbody.insertRow();
                 let newCell = newRow.insertCell();
-                newCell.setAttribute("colSpan", "4");
+                newCell.setAttribute("colSpan", "5");
                 newCell.style.textAlign = "center";
                 newCell.innerHTML = `No data available`
             }
             
     })
 
-    function formatCurrency(amount){
-        let c = parseFloat(amount/100);
-        return c.toLocaleString("en-CA", {
-            style: "currency",
-            currency: "CAD",
-        })
-    }
+}
+document.addEventListener("DOMContentLoaded",function(){
+    updateTable(pageSize, currentPage)
+})
+    
+function formatCurrency(amount){
+    let c = parseFloat(amount/100);
+    return c.toLocaleString("en-CA", {
+        style: "currency",
+        currency: "CAD",
+    })
+}
 </script>
 {{end}}

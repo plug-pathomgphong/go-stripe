@@ -21,70 +21,116 @@
     
     </tbody>
 </table>
-
+<nav aria-label="Page navigation">
+  <ul id="paginator" class="pagination">
+  </ul>
+</nav>
 {{end}}
 
 {{define "js"}}
 <script>
-      let token = localStorage.getItem("token")
-      let tbody = document.getElementById("sales-tables").getElementsByTagName("tbody")[0]
-            const requestOptions = {
-                method: 'post',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token,
-                },
+let currentPage = 1;
+let pageSize = 5;
+
+function paginator(pages, curPage) {
+    let p = document.getElementById("paginator");
+
+    let html = `<li class="page-item"><a href="#!" class="page-link pager" data-page="${curPage - 1}">&lt;</a></li>`;
+
+    for (var i = 0; i < pages; i++) {
+        html += `<li class="page-item"><a href="#!" class="page-link pager" data-page="${i + 1}">${i + 1}</a></li>`;
+    }
+
+    html += `<li class="page-item"><a href="#!" class="page-link pager" data-page="${curPage + 1}">&gt;</a></li>`;
+
+    p.innerHTML = html;
+
+    let pageBtns = document.getElementsByClassName("pager");
+    for (var j = 0; j < pageBtns.length; j++) {
+        pageBtns[j].addEventListener("click", function(evt){
+            let desiredPage = evt.target.getAttribute("data-page");
+            console.log("clicked, and data-page is", desiredPage);
+            if ((desiredPage > 0) && (desiredPage <= pages )) {
+                console.log("would go to page", desiredPage);
+                updateTable(pageSize, desiredPage);
             }
+        })
+    }
+}
 
-            fetch("{{.API}}/api/admin/all-sales", requestOptions)
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data)
+function updateTable(pSize, page){
+    let token = localStorage.getItem("token")
+    let tbody = document.getElementById("sales-tables").getElementsByTagName("tbody")[0]
+    tbody.innerHTML = "";
 
-                    if(data !== null){
-                        data.forEach(function(i){
-                            let newRow = tbody.insertRow();
-                            let newCell = newRow.insertCell();
+    let body = {
+        page_size: parseInt(pSize,10),
+        page: parseInt(page),
+    }
+    const requestOptions = {
+        method: 'post',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token,
+        },
+        body: JSON.stringify(body)
+    }
 
-                            newCell.innerHTML = `<a href="/admin/sales/${i.id}"> Order ${i.id}</a>`
+    fetch("{{.API}}/api/admin/all-sales", requestOptions)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
 
-                            newCell = newRow.insertCell();
-                            let item = document.createTextNode(i.customer.last_name + ", " + i.customer.first_name);
-                            newCell.appendChild(item)
+            if(data.orders){
+                data.orders.forEach(function(i){
+                    let newRow = tbody.insertRow();
+                    let newCell = newRow.insertCell();
 
-                            newCell = newRow.insertCell();
-                            item = document.createTextNode(i.widget.name);
-                            newCell.appendChild(item)
+                    newCell.innerHTML = `<a href="/admin/sales/${i.id}"> Order ${i.id}</a>`
 
-                            let currency = formatCurrency(i.transaction.amount)
-                            newCell = newRow.insertCell();
-                            item = document.createTextNode(currency);
-                            newCell.appendChild(item)
+                    newCell = newRow.insertCell();
+                    let item = document.createTextNode(i.customer.last_name + ", " + i.customer.first_name);
+                    newCell.appendChild(item)
 
-                            newCell = newRow.insertCell();
-                            if (i.status_id != 1) {
-                                newCell.innerHTML = `<span class="badge bg-danger">Refund</span>`
-                            } else {
-                                newCell.innerHTML = `<span class="badge bg-success">Charged</span>`
-                            }
-                        })
-                    }else{
-                        let newRow = tbody.insertRow();
-                        let newCell = newRow.insertCell();
-                        newCell.setAttribute("colSpan", "4");
-                        newCell.style.textAlign = "center";
-                        newCell.innerHTML = `No data available`
+                    newCell = newRow.insertCell();
+                    item = document.createTextNode(i.widget.name);
+                    newCell.appendChild(item)
+
+                    let currency = formatCurrency(i.transaction.amount)
+                    newCell = newRow.insertCell();
+                    item = document.createTextNode(currency);
+                    newCell.appendChild(item)
+
+                    newCell = newRow.insertCell();
+                    if (i.status_id != 1) {
+                        newCell.innerHTML = `<span class="badge bg-danger">Refund</span>`
+                    } else {
+                        newCell.innerHTML = `<span class="badge bg-success">Charged</span>`
                     }
-                    
-            })
-
-            function formatCurrency(amount){
-                let c = parseFloat(amount/100);
-                return c.toLocaleString("en-CA", {
-                    style: "currency",
-                    currency: "CAD",
                 })
+                paginator(data.last_page, data.current_page)
+            }else{
+                let newRow = tbody.insertRow();
+                let newCell = newRow.insertCell();
+                newCell.setAttribute("colSpan", "5");
+                newCell.style.textAlign = "center";
+                newCell.innerHTML = `No data available`
             }
+            
+    })
+}
+document.addEventListener("DOMContentLoaded",function(){
+    updateTable(pageSize, currentPage)
+})
+      
+
+function formatCurrency(amount){
+    let c = parseFloat(amount/100);
+    return c.toLocaleString("en-CA", {
+        style: "currency",
+        currency: "CAD",
+    })
+}
 </script>
 {{end}}
