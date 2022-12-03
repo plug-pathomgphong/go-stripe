@@ -26,14 +26,20 @@
 
         <div class="mb-3">
             <label for="first-name" class="form-label">First name</label>
-            <input type="text" class="form-control" id="first-name" value="John" name="first_name"
-                required="" autocomplete="first-name-new">
+            <input type="text" class="form-control" id="first_name" value="John" name="first_name"
+                required="" autocomplete="first_name-new">
+            <div id="first_name-help" class="valid-feedback">
+                
+            </div>
         </div>
 
          <div class="mb-3">
             <label for="last-name" class="form-label">Last name</label>
-            <input type="text" class="form-control" id="last-name" value="Smith" name="last_name"
-                required="" autocomplete="last-name-new">
+            <input type="text" class="form-control" id="last_name" value="Smith" name="last_name"
+                required="" autocomplete="last_name-new">
+            <div id="last_name-help" class="valid-feedback">
+                
+            </div>
         </div>
 
         <div class="mb-3">
@@ -139,8 +145,8 @@
                 card_brand: result.paymentMethod.card.brand,
                 exp_month: result.paymentMethod.card.exp_month,
                 exp_year: result.paymentMethod.card.exp_year,
-                first_name: document.getElementById("first-name").value,
-                last_name: document.getElementById("last-name").value,
+                first_name: document.getElementById("first_name").value,
+                last_name: document.getElementById("last_name").value,
                 amount:  document.getElementById("amount").value,
             }
 
@@ -154,17 +160,34 @@
             }
 
             fetch("{{.API}}/api/create-customer-and-subscribe-to-plan", requestOptions)
-                .then(response => response.text())
+                .then(response => response.json())
                 .then(data => {
-                    console.log(data)
-                    processing.classList.add("d-none")
-                    showCardSuccess();
-                    sessionStorage.first_name = document.getElementById("first-name").value
-                    sessionStorage.last_name = document.getElementById("last-name").value
-                    sessionStorage.amount = "{{formatCurrency $widget.Price}}"
-                    sessionStorage.last_four = result.paymentMethod.card.last4
+                console.log(data,data.error)
+                    if (data.error === false) {
+                     console.log(data,true)
+                        processing.classList.add("d-none")
+                        showCardSuccess();
+                        sessionStorage.first_name = document.getElementById("first_name").value
+                        sessionStorage.last_name = document.getElementById("last_name").value
+                        sessionStorage.amount = "{{formatCurrency $widget.Price}}"
+                        sessionStorage.last_four = result.paymentMethod.card.last4
 
-                    location.href = "/receipt/bronze"
+                        location.href = "/receipt/bronze"                    
+                    } else {
+                     console.log(data.errors,false)
+                        document.getElementById("charge_form").classList.remove("was-validated");
+
+                        Object.entries(data.errors).forEach(entry => {
+                            const [key, value] = entry;
+                            console.log(key, value);
+                            document.getElementById(key).classList.add("is-invalid");
+                            document.getElementById(key + "-help").classList.remove("valid-feedback");
+                            document.getElementById(key + "-help").classList.add("invalid-feedback");
+                            document.getElementById(key + "-help").innerText = value;
+                        });
+                        showPayButton()
+                    }
+
                 })
         }
     }

@@ -15,6 +15,7 @@ import (
 	"github.com/plug-pathomgphong/dotnet-webapi/internal/encyption"
 	"github.com/plug-pathomgphong/dotnet-webapi/internal/models"
 	"github.com/plug-pathomgphong/dotnet-webapi/internal/urlsigner"
+	"github.com/plug-pathomgphong/dotnet-webapi/internal/validator"
 	"github.com/stripe/stripe-go/v72"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -148,7 +149,21 @@ func (app *application) CreateCustomerAndSubscribeToPlan(w http.ResponseWriter, 
 		return
 	}
 
-	app.infoLog.Println(data.Email, data.LastFour, data.PaymentMethod, data.Plan)
+	// validate data
+	v := validator.New()
+	v.Check(len(data.FirstName) > 1, "first_name", "must be at least 1 charactors")
+	if !v.Valid() {
+		app.failedValidation(w, r, v.Errors)
+		return
+	}
+
+	v.Check(len(data.LastName) > 1, "last_name", "must be at least 1 charactors")
+	if !v.Valid() {
+		app.failedValidation(w, r, v.Errors)
+		return
+	}
+
+	// app.infoLog.Println(data.Email, data.LastFour, data.PaymentMethod, data.Plan)
 
 	card := cards.Card{
 		Secret:   app.config.stripe.secret,
