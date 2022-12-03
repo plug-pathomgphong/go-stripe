@@ -78,7 +78,7 @@ func main() {
 	flag.StringVar(&cfg.secretkey, "secret", os.Getenv("SECRET"), "secret key")
 	flag.StringVar(&cfg.frontend, "frontend", "http://localhost:4000", "url to frontend")
 
-	fmt.Println(os.Getenv("SMTP_HOST"), os.Getenv("SMTP_USER"), os.Getenv("SMTP_PASSWORD"))
+	// fmt.Println(os.Getenv("SMTP_HOST"), os.Getenv("SMTP_USER"), os.Getenv("SMTP_PASSWORD"))
 	flag.Parse()
 
 	cfg.stripe.key = os.Getenv("STRIPE_KEY")

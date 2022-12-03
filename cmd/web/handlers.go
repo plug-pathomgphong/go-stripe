@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -101,8 +103,20 @@ func (app *application) GetTransactionData(r *http.Request) (TransactionData, er
 
 }
 
+type Invoice struct {
+	ID        int       `json:"id"`
+	Quantity  int       `json:"quantity"`
+	Amount    int       `json:"amount"`
+	Product   string    `json:"product"`
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
 // PaymentSucceeded displays the receipt page
 func (app *application) PaymentSucceeded(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("PaymentSucceeded")
 	err := r.ParseForm()
 	if err != nil {
 		app.errorLog.Println(err)
@@ -155,33 +169,63 @@ func (app *application) PaymentSucceeded(w http.ResponseWriter, r *http.Request)
 		UpdatedAt:     time.Now(),
 	}
 
-	_, err = app.SaveOrder(order)
+	orderID, err := app.SaveOrder(order)
 	if err != nil {
 		app.errorLog.Println(err)
 		return
 	}
 
-	// data := make(map[string]interface{})
-	// data["cardholder"] = cardHolder
-	// data["email"] = txnData.Email
-	// data["pi"] = txnData.PaymentIndentID
-	// data["pm"] = txnData.PaymentMethodID
-	// data["pa"] = txnData.PaymentAmount
-	// data["pc"] = txnData.PaymentCurrency
-	// data["last_four"] = txnData.LastFour
-	// data["expire_month"] = txnData.ExpiryMonth
-	// data["expire_year"] = txnData.ExpiryYear
-	// data["bank_return_code"] = txnData.BankReturnCode
-	// data["first_name"] = txnData.FirstName
-	// data["last_name"] = txnData.LastName
+	// call microservice
+	inv := Invoice{
+		ID:        orderID,
+		Amount:    order.Amount,
+		Product:   "Widget",
+		Quantity:  order.Quantity,
+		FirstName: txnData.FirstName,
+		LastName:  txnData.LastName,
+		Email:     txnData.Email,
+		CreatedAt: time.Now(),
+	}
 
-	// should write this data to session, and then redirect user to new page
+	// err = app.callInvoiceMicro(inv)
+	// if err != nil {
+	// 	fmt.Println("Error callInvoiceMicro")
+	// 	app.errorLog.Println(err)
+	// }
+	go app.callInvoiceMicro(inv)
+
+	fmt.Println("success callInvoiceMicro")
+	// write this data to session, and then redirect user to new page
 	app.Session.Put(r.Context(), "receipt", txnData)
 	http.Redirect(w, r, "/receipt", http.StatusSeeOther)
 
-	// if err := app.renderTemplate(w, r, "succeeded", &templateData{Data: data}); err != nil {
-	// 	app.errorLog.Println(err)
-	// }
+}
+
+func (app *application) callInvoiceMicro(inv Invoice) error {
+	url := "http://localhost:5000/invoice/create-and-send"
+	out, err := json.MarshalIndent(inv, "", "\t")
+	if err != nil {
+		return err
+	}
+
+	// fmt.Println("NewRequest")
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(out))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	// fmt.Println("Call api invoices")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	// fmt.Println("Success call api invoices ")
+	app.infoLog.Println(resp.Body)
+
+	return nil
 }
 
 // VirtualTerminalPaymentSucceeded displays the receipt page
